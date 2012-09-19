@@ -1,2 +1,6 @@
 /Game_Engine/Library/*
 /Game_Engine/Temp/*
+/Game_Engine/obj/*
+/Game_Engine/*.suo
+/Game_Engine/*.userprefs
+/Game_Engine/*.pidb
