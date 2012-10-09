@@ -10,14 +10,15 @@ public class PlayerCharacter : MonoBehaviour
         m_healthBar.MaxValue = m_maxHitPoints;
         m_energyBar.CurrentValue = m_energyPoints;
         m_energyBar.MaxValue = m_maxEnergyPoints;
+		m_position = transform.position;
 	}
 	
 	// Update is called once per frame
 	void Update()
     {
         //TODO: Move to FixedUpdate()
-        CharacterController controller = GetComponent<CharacterController>();
-
+		CharacterController controller = GetComponent<CharacterController>();
+		m_position = transform.position;
         // Rotate around y - axis
         /*
         transform.Rotate(0, InputControls.GetRotation() * rotateSpeed, 0);
@@ -132,6 +133,12 @@ public class PlayerCharacter : MonoBehaviour
         get { return m_maxEnergyPoints; }
         set { m_maxEnergyPoints = value; m_energyBar.MaxValue = m_maxEnergyPoints; }
     }
+	
+	public Vector3 Position
+	{
+		get { return m_position; }
+		set { ; }
+	}
 
     [SerializeField]
     private float m_movementSpeed;
@@ -154,6 +161,9 @@ public class PlayerCharacter : MonoBehaviour
     private int m_energyPoints;
     [SerializeField]
     private int m_maxEnergyPoints;
+
+	[SerializeField]
+	public Vector3 m_position;
 
     [SerializeField]
     private Camera m_camera;
