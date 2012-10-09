@@ -6,3 +6,4 @@
 /Game_Engine/*.pidb
 /Game_Engine/*.csproj
 /Game_Engine/*.sln
+*.DS_Store
