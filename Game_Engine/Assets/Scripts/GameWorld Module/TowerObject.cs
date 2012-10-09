@@ -13,17 +13,21 @@ public class TowerObject : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (isInRange(m_player.Position)){
-			aimAt(m_player.Position);
-			//check if aimed correctly
-			//shoot missile
+			float aimError = aimAt(m_player.Position);
+			if (aimError <= m_maxAngleError){
+				shoot();
+			}
 		}
-		
+	}
+	
+	void shoot(){
+		// GameObject fireball = Instantiate(m_fireballClone, transform.positon, transform.rotation) as GameObject;
+		// 		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
 	}
 	
 	// retuns true if the target is in range
 	bool isInRange(Vector3 target){
-		target = target - transform.position;
-		float distanceToTarget = target.magnitude;
+		float distanceToTarget = (target - transform.position).magnitude;
 		if (distanceToTarget <= m_maxRange && distanceToTarget >= m_minRange){
 			return true;
 		}
@@ -35,7 +39,7 @@ public class TowerObject : MonoBehaviour {
 		Quaternion rotateTo = Quaternion.LookRotation(target - transform.position);
 		Quaternion slerp = Quaternion.Slerp(transform.rotation, rotateTo, Time.deltaTime  * m_dampingCoeff);
 		float aimError = (slerp.eulerAngles - rotateTo.eulerAngles).magnitude;
-		if (aimError >= m_maxAngleError*0){
+		if (aimError >= m_maxAngleError){
 			transform.rotation = slerp;
 		}
 		return aimError;
@@ -68,6 +72,9 @@ public class TowerObject : MonoBehaviour {
 	
 	[SerializeField]
 	private PlayerCharacter m_player;
+	
+    [SerializeField]
+    private GameObject m_fireballClone;
 	
 	[SerializeField]
 	private float m_dampingCoeff;
