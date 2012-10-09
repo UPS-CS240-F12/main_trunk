@@ -12,25 +12,34 @@ public class TowerObject : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float distanceToPlayer = getDistanceTo(m_player.Position);
-		if (distanceToPlayer <= m_maxRange && distanceToPlayer >= m_minRange){
+		if (isInRange(m_player.Position)){
 			aimAt(m_player.Position);
+			//check if aimed correctly
+			//shoot missile
 		}
+		
 	}
 	
-	/* retuns the distance to the traget*/
-	float getDistanceTo(Vector3 target){
+	/* retuns true if the target is in range*/
+	bool isInRange(Vector3 target){
 		target = target - transform.position;
-		return target.magnitude;
+		float distanceToTarget = target.magnitude;
+		if (distanceToTarget <= m_maxRange && distanceToTarget >= m_minRange){
+			return true;
+		}
+		return false;
 	}
 	
-	/* Points the tower object at the target
+	/* Points the tower object at the target, and returns a number indicating the precision of the targeting
 	*/
-	void aimAt(Vector3 target){
-		//Calculate the difference between the turrent's orientation and the players position
-		Quaternion deltaRotate = Quaternion.LookRotation(target - transform.position);
-		//match the turrets orientation to face the player, but do it slowly, according to the DampingCoefficient
-		transform.rotation = Quaternion.Slerp(transform.rotation, deltaRotate, Time.deltaTime  * m_dampingCoeff);
+	float aimAt(Vector3 target){
+		Quaternion rotateTo = Quaternion.LookRotation(target - transform.position);
+		Quaternion slerp = Quaternion.Slerp(transform.rotation, rotateTo, Time.deltaTime  * m_dampingCoeff);
+		float aimError = (slerp.eulerAngles - rotateTo.eulerAngles).magnitude;
+		if (aimError >= m_angleError*0){
+			transform.rotation = slerp;
+		}
+		return aimError;
 	}
 
 	public PlayerCharacter Player
@@ -63,6 +72,8 @@ public class TowerObject : MonoBehaviour {
 	
 	[SerializeField]
 	private float m_dampingCoeff;
+	[SerializeField]
+	private const float m_angleError = 1.0f;
 	[SerializeField]
 	private float m_maxRange = 0;
 	[SerializeField]
