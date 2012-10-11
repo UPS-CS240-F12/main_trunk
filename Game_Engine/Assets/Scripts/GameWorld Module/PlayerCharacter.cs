@@ -86,7 +86,7 @@ public class PlayerCharacter : MonoBehaviour
 
     void LateUpdate()
     {
-        m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 500, transform.position.z - 300);
+        m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 200);
     }
 	
 	public void AddEnergy(int energy)

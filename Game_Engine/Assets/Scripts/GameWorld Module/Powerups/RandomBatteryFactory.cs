@@ -19,7 +19,7 @@ public class RandomBatteryFactory : MonoBehaviour
 			
 			float x = m_boundaries.x + ((float) rand.NextDouble() * m_boundaries.width);
 			float z = m_boundaries.y + ((float) rand.NextDouble() * m_boundaries.height);
-            Instantiate(m_batteryClone, new Vector3(x, 30, z), Quaternion.Euler(90, 0, 0));
+            Instantiate(m_batteryClone, new Vector3(x, 30, z), Quaternion.identity);
 		}
 	}
 	
