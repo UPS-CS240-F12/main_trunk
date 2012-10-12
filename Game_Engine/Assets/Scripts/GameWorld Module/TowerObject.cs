@@ -37,7 +37,7 @@ public class TowerObject : MonoBehaviour {
 
 	
 	void ShootFireball(){
-        GameObject fireball = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
+		GameObject fireball = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
 		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
 	}
 	
@@ -61,12 +61,18 @@ public class TowerObject : MonoBehaviour {
 		return aimError;
 	}
 
+	public GameObject BulletClone
+	{
+		get { return m_bulletClone; }
+		set { m_bulletClone = value; }
+	}
+
 	public PlayerCharacter Player
 	{
 		get { return m_player; }
 		set { m_player = value; }
 	}
-	
+
 	// public float DampingCoefficient
 	// {
 	// 	get { return m_dampingCoeff; }
