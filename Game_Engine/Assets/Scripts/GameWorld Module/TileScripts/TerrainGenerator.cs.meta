@@ -1,0 +1,8 @@
+fileFormatVersion: 2
+guid: 3646e4ef8d46c0040a3ea0f709ffd746
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - m_tileClone: {fileID: 100000, guid: 1d7d58c45a057fb49aa9e46764e11b9d, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
