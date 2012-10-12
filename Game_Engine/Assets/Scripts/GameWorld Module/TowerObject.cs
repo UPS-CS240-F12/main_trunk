@@ -12,17 +12,22 @@ public class TowerObject : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        m_waitTimeToFire += Time.deltaTime;
 		if (isInRange(m_player.Position)){
 			float aimError = aimAt(m_player.Position);
 			if (aimError <= m_maxAngleError){
-				shoot();
+                if (m_waitTimeToFire >= m_firingRate)
+                {
+                    m_waitTimeToFire = 0;
+                    shoot();
+                }
 			}
 		}
 	}
 	
 	void shoot(){
-		// GameObject fireball = Instantiate(m_fireballClone, transform.positon, transform.rotation) as GameObject;
-		// 		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
+        GameObject bullet = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
+        bullet.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
 	}
 	
 	// retuns true if the target is in range
@@ -68,13 +73,19 @@ public class TowerObject : MonoBehaviour {
 		get { return m_minRange; }
 		set { m_minRange = value; }
 	}
+
+    public float FiringRate
+    {
+        get { return m_firingRate; }
+        set { m_firingRate = value; }
+    }
 	
 	
 	[SerializeField]
 	private PlayerCharacter m_player;
 	
     [SerializeField]
-    private GameObject m_fireballClone;
+    private GameObject m_bulletClone;
 	
 	[SerializeField]
 	private float m_dampingCoeff;
@@ -84,5 +95,8 @@ public class TowerObject : MonoBehaviour {
 	private float m_maxRange = 500;
 	[SerializeField]
 	private float m_minRange = 100;
+    [SerializeField]
+    private float m_firingRate;
+    private float m_waitTimeToFire = 0;
 
 }
