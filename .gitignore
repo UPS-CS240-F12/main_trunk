@@ -1,3 +1,4 @@
+# Unity files
 /Game_Engine/Library/*
 /Game_Engine/Temp/*
 /Game_Engine/obj/*
@@ -7,6 +8,12 @@
 /Game_Engine/*.csproj
 /Game_Engine/*.sln
 /Game_Engine/Assets/*.unity
+
+# Mac Files
 *.DS_Store
+
+# Blender backups
 *.blender[0-9]+
+
+# nano backups
 *.save
