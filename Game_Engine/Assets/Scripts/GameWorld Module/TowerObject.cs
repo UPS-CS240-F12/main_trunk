@@ -5,9 +5,12 @@ public class TowerObject : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		// m_dampingCoeff = 5.0f;
-		// m_maxRange = 100.0f;
-		// m_minRange = 50.0f;
+		m_dampingCoeff = 5.0f;
+		m_maxRange = 1000.0f;
+		m_minRange = 100.0f;
+		m_maxAngleError = 1.0f;
+		isShooting = false;
+		StartCoroutine("FireballShooter");
 	}
 	
 	// Update is called once per frame
@@ -15,14 +18,29 @@ public class TowerObject : MonoBehaviour {
 		if (isInRange(m_player.Position)){
 			float aimError = aimAt(m_player.Position);
 			if (aimError <= m_maxAngleError){
-				shoot();
+				isShooting = true;
+			} else {
+				isShooting = false;
 			}
 		}
 	}
 	
-	void shoot(){
-		// GameObject fireball = Instantiate(m_fireballClone, transform.positon, transform.rotation) as GameObject;
-		// 		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
+	private IEnumerator FireballShooter()
+	{
+		while (true)
+		{
+			yield return new WaitForSeconds(2000);
+			if(isShooting){
+				ShootFireball();
+				print("shooting");
+			}
+		}
+	}
+
+	
+	void ShootFireball(){
+		GameObject fireball = Instantiate(m_fireballClone, transform.position, transform.rotation) as GameObject;
+		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
 	}
 	
 	// retuns true if the target is in range
@@ -51,38 +69,40 @@ public class TowerObject : MonoBehaviour {
 		set { m_player = value; }
 	}
 	
-	public float DampingCoefficient
-	{
-		get { return m_dampingCoeff; }
-		set { m_dampingCoeff = value; }
-	}
+	// public float DampingCoefficient
+	// {
+	// 	get { return m_dampingCoeff; }
+	// 	set { m_dampingCoeff = value; }
+	// }
+	// 
+	// public float MaxRange
+	// {
+	// 	get { return m_maxRange; }
+	// 	set { m_maxRange = value; }
+	// }
+	// 
+	// public float MinRange
+	// {
+	// 	get { return m_minRange; }
+	// 	set { m_minRange = value; }
+	// }
 	
-	public float MaximumRange
-	{
-		get { return m_maxRange; }
-		set { m_maxRange = value; }
-	}
-	
-	public float MinimumRange
-	{
-		get { return m_minRange; }
-		set { m_minRange = value; }
-	}
+	private bool isShooting;
 	
 	
 	[SerializeField]
 	private PlayerCharacter m_player;
 	
-    [SerializeField]
-    private GameObject m_fireballClone;
+	[SerializeField]
+	private GameObject m_fireballClone;
 	
-	[SerializeField]
+	// [SerializeField]
 	private float m_dampingCoeff;
-	[SerializeField]
-	private const float m_maxAngleError = 1.0f;
-	[SerializeField]
-	private float m_maxRange = 500;
-	[SerializeField]
-	private float m_minRange = 100;
+	// [SerializeField]
+	private float m_maxAngleError;
+	// [SerializeField]
+	private float m_maxRange;
+	// [SerializeField]
+	private float m_minRange;
 
 }

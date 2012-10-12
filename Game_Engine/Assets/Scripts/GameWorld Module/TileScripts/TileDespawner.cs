@@ -11,11 +11,11 @@ public class TileDespawner : MonoBehaviour {
 		//float initialMagnitude = magnitude;
 		float life = Random.Range(10.0F, 250.0F);
         yield return StartCoroutine(MyWaitFunction (life));
-        print ("Block has reached Half-Life.");
+        //print ("Block has reached Half-Life.");
 		this.gameObject.renderer.material.color = Color.yellow;
 		normColor = Color.yellow;
         yield return StartCoroutine(MyWaitFunction (5.0f));
-        print ("Block has despawned!");
+        //print ("Block has despawned!");
 		this.gameObject.renderer.material.color = Color.red;
 		normColor = Color.red;
 		despawn = true;
