@@ -5,10 +5,10 @@ public class TowerObject : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		m_dampingCoeff = 5.0f;
+		m_dampingCoeff = 30.0f;
 		m_maxRange = 1000.0f;
 		m_minRange = 100.0f;
-		m_maxAngleError = 1.0f;
+		m_maxAngleError = 0.10f;
 		isShooting = false;
 		StartCoroutine("FireballShooter");
 	}
@@ -28,7 +28,7 @@ public class TowerObject : MonoBehaviour {
 	{
 		while (true)
 		{
-			yield return new WaitForSeconds(2);
+			yield return new WaitForSeconds(0.5f);
 			if(isShooting){
 				ShootFireball();
 			}
@@ -38,7 +38,7 @@ public class TowerObject : MonoBehaviour {
 	
 	void ShootFireball(){
 		GameObject fireball = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
-		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
+		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward * 3);
 	}
 	
 	// retuns true if the target is in range
