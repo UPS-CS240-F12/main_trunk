@@ -8,11 +8,12 @@ public class NetworkInterface : MonoBehaviour
 {
     void Start()
     {
-        JSONObject obj = new JSONObject("{\"turrets\":[{\"ID\":\"1\",\"position\":\"700,75,700\"},{\"ID\":\"2\",\"position\":\"200,75,200\"},{\"ID\":\"3\",\"position\":\"1400,75,1400\"}]}");
-        foreach (JSONObject turret in obj["turrets"].list)
+        JSONObject obj = new JSONObject("{\"turret\":{\"ID\":\"1\",\"position\":\"1400,0,1400\"}}");
+        //foreach (JSONObject turret in obj["turrets"].list)
         {
-            GameObject newT = Instantiate(m_turretClone, ParseVector3(turret["position"].str), Quaternion.identity) as GameObject;
-            newT.name = ("turret" + turret["ID"].str);
+            HandleJSONTurret(obj);
+            /*GameObject newT = Instantiate(m_turretClone, ParseVector3(turret["position"].str), Quaternion.identity) as GameObject;
+            newT.name = ("turret" + turret["ID"].str);*/
         }
 
         //StartCoroutine("PollData");
@@ -34,7 +35,11 @@ public class NetworkInterface : MonoBehaviour
 
     private void HandleJSONTurret(string s)
     {
-        JSONObject obj = new JSONObject(s);
+        HandleJSONTurret(new JSONObject(s));
+    }
+
+    private void HandleJSONTurret(JSONObject obj)
+    {
         if (obj == null || obj.type == JSONObject.Type.NULL)
             return;
 

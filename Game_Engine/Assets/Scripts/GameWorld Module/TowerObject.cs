@@ -5,18 +5,19 @@ public class TowerObject : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		m_dampingCoeff = 5.0f;
+		m_dampingCoeff = 30.0f;
 		m_maxRange = 1000.0f;
 		m_minRange = 100.0f;
-		m_maxAngleError = 1.0f;
+		m_maxAngleError = 0.10f;
 		isShooting = false;
+        m_player = GameObject.FindWithTag("Player");
 		StartCoroutine("FireballShooter");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (isInRange(m_player.Position)){
-			float aimError = aimAt(m_player.Position);
+		if (isInRange(m_player.transform.position)){
+			float aimError = aimAt(m_player.transform.position);
 			if (aimError <= m_maxAngleError){
 				isShooting = true;
 			} else {
@@ -28,7 +29,7 @@ public class TowerObject : MonoBehaviour {
 	{
 		while (true)
 		{
-			yield return new WaitForSeconds(2);
+			yield return new WaitForSeconds(0.5f);
 			if(isShooting){
 				ShootFireball();
 			}
@@ -37,8 +38,8 @@ public class TowerObject : MonoBehaviour {
 
 	
 	void ShootFireball(){
-        GameObject fireball = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
-		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
+		GameObject fireball = Instantiate(m_bulletClone, transform.position, transform.rotation * Quaternion.Euler(-90, 0, 0)) as GameObject;
+		fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward * 3);
 	}
 	
 	// retuns true if the target is in range
@@ -61,12 +62,18 @@ public class TowerObject : MonoBehaviour {
 		return aimError;
 	}
 
-	public PlayerCharacter Player
+	public GameObject BulletClone
+	{
+		get { return m_bulletClone; }
+		set { m_bulletClone = value; }
+	}
+
+    public GameObject Player
 	{
 		get { return m_player; }
 		set { m_player = value; }
 	}
-	
+
 	// public float DampingCoefficient
 	// {
 	// 	get { return m_dampingCoeff; }
@@ -86,9 +93,7 @@ public class TowerObject : MonoBehaviour {
 	// }
 	private bool isShooting;
 	
-	
-	[SerializeField]
-	private PlayerCharacter m_player;
+	private GameObject m_player;
 
 	[SerializeField]
 	private GameObject m_bulletClone;

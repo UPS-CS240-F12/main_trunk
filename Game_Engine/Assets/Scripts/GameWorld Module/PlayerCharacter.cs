@@ -10,7 +10,6 @@ public class PlayerCharacter : MonoBehaviour
         m_healthBar.MaxValue = m_maxHitPoints;
         m_energyBar.CurrentValue = m_energyPoints;
         m_energyBar.MaxValue = m_maxEnergyPoints;
-		m_position = transform.position;
         StartCoroutine("EnergyLossRoutine");
 	}
 
@@ -83,8 +82,6 @@ public class PlayerCharacter : MonoBehaviour
             if (HitPoints <= 0)
                 HitPoints = 0;
         }
-		//update stored position
-		m_position = transform.position;
 	}
 
     void LateUpdate()
@@ -163,11 +160,6 @@ public class PlayerCharacter : MonoBehaviour
     {
         get { return m_energyLossRate; }
     }
-	
-	public Vector3 Position
-	{
-		get { return m_position; }
-	}
 
     [SerializeField]
     private float m_movementSpeed;
@@ -192,9 +184,6 @@ public class PlayerCharacter : MonoBehaviour
     private int m_maxEnergyPoints;
     [SerializeField]
     private float m_energyLossRate = 1;
-
-    [SerializeField]
-    private Vector3 m_position;
 
     [SerializeField]
     private Camera m_camera;

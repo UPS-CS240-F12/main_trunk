@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 13aba7e63adb448278a7c55985fd250a
+guid: 50032620863ff4e1e9732ecd3d651a72
 ModelImporter:
   fileIDToRecycleName:
-    4300000: Cube
-    4300002: Icosphere_001
-    4300004: Icosphere
-    7400000: Default Take //// tower_top
+    4300000: Icosphere
+    7400000: Default Take //// fireball
   serializedVersion: 10
   materials:
     importMaterials: 1
