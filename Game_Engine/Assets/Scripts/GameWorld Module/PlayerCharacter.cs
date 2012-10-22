@@ -3,6 +3,11 @@ using System.Collections;
 
 public class PlayerCharacter : MonoBehaviour
 {
+	bool firstJump;
+	bool jumping;
+	float energyMagnitude;
+	GameObject particleTrail;
+	
 	// Use this for initialization
 	void Start()
     {
@@ -10,6 +15,12 @@ public class PlayerCharacter : MonoBehaviour
         m_healthBar.MaxValue = m_maxHitPoints;
         m_energyBar.CurrentValue = m_energyPoints;
         m_energyBar.MaxValue = m_maxEnergyPoints;
+		m_position = transform.position;
+		firstJump = false;
+		jumping = false;
+		energyMagnitude = 0.09f;
+		
+		particleTrail = Instantiate(m_particle, transform.position, Quaternion.identity) as GameObject;
         StartCoroutine("EnergyLossRoutine");
 	}
 
@@ -49,13 +60,16 @@ public class PlayerCharacter : MonoBehaviour
 
         if (controller.isGrounded)
         {
+			energyMagnitude = 0;
             if (Input.GetButton("Jump"))
             {
                 m_fallSpeed = m_jumpSpeed;
                 moveDirection.y = m_jumpSpeed;
+				firstJump = false;
             }
             else
                 m_fallSpeed = 0;
+				firstJump = false;
             /*
             if (InputControls.IsJumping() == true)
             {
@@ -64,11 +78,22 @@ public class PlayerCharacter : MonoBehaviour
             }
             */
         }
-        else
+        else if(Input.GetButton("Jump") && firstJump)
+		{
+			//Perform Jetpack
+			moveDirection.y = moveDirection.y + m_jumpSpeed;
+			m_fallSpeed = m_jumpSpeed;
+			RemoveEnergy((int)energyMagnitude);
+			energyMagnitude += 0.25f;
+			jumping = true;
+		}
+		else
         {
             // Apply gravity
             m_fallSpeed -= m_gravity * Time.deltaTime;
             moveDirection.y += m_fallSpeed;
+			firstJump = true;
+			jumping = false;
         }
 
         // Move the controller
@@ -82,18 +107,31 @@ public class PlayerCharacter : MonoBehaviour
             if (HitPoints <= 0)
                 HitPoints = 0;
         }
+		//update stored position
+		m_position = transform.position;
 	}
 
     void LateUpdate()
     {
-        m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 200);
-    }
+        m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 400);
+		if(jumping)
+		{
+			Instantiate(m_particle, transform.position, Quaternion.identity);
+		}
+	}
 	
 	public void AddEnergy(int energy)
 	{
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
             EnergyPoints = MaxEnergyPoints;
+	}
+	
+	public void RemoveEnergy(int energy)
+	{
+		EnergyPoints -= energy;
+        if (EnergyPoints < 0)
+            EnergyPoints = 0;
 	}
 
     public void Damage(int damage)
@@ -160,7 +198,12 @@ public class PlayerCharacter : MonoBehaviour
     {
         get { return m_energyLossRate; }
     }
-
+	
+	public Vector3 Position
+	{
+		get { return m_position; }
+	}
+	
     [SerializeField]
     private float m_movementSpeed;
     [SerializeField]
@@ -186,9 +229,15 @@ public class PlayerCharacter : MonoBehaviour
     private float m_energyLossRate = 1;
 
     [SerializeField]
+    private Vector3 m_position;
+
+    [SerializeField]
     private Camera m_camera;
     [SerializeField]
     private HUDBarObject m_healthBar;
     [SerializeField]
     private HUDBarObject m_energyBar;
+	
+	[SerializeField]
+	private GameObject m_particle;
 }

@@ -3,9 +3,15 @@ using System.Collections;
 
 public class Battery : Powerup
 {
+	void Start()
+	{
+		m_pointKeeper = GameObject.FindGameObjectWithTag("PointKeeper") as GameObject;
+	}
+	
     protected override void OnPowerupReceived(Collider player)
     {
         player.SendMessage("AddEnergy", m_energyGain);
+		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }
 
     public int EnergyGain
@@ -16,4 +22,11 @@ public class Battery : Powerup
 
     [SerializeField]
     private int m_energyGain;
+	
+	private GameObject m_pointKeeper;
+	
+	[SerializeField]
+	int m_pointValue;
+	[SerializeField]
+	string m_displayMessage;
 }

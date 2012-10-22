@@ -20,6 +20,7 @@ public class RandomBatteryFactory : MonoBehaviour
 			float x = m_boundaries.x + ((float) rand.NextDouble() * m_boundaries.width);
 			float z = m_boundaries.y + ((float) rand.NextDouble() * m_boundaries.height);
             Instantiate(m_batteryClone, new Vector3(x, 30, z), Quaternion.identity);
+			Instantiate(m_particle, new Vector3(x, 30, z), Quaternion.identity);
 		}
 	}
 	
@@ -54,4 +55,6 @@ public class RandomBatteryFactory : MonoBehaviour
 	private bool m_continue = true;
 	[SerializeField]
 	private GameObject m_batteryClone;
+	[SerializeField]
+	private GameObject m_particle;
 }
