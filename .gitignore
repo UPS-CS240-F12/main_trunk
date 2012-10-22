@@ -7,7 +7,6 @@
 /Game_Engine/*.pidb
 /Game_Engine/*.csproj
 /Game_Engine/*.sln
-/Game_Engine/Assets/*.unity
 
 # Mac Files
 *.DS_Store
