@@ -5,7 +5,7 @@ public class Battery : Powerup
 {
 	void Start()
 	{
-		m_pointKeeper = GameObject.FindGameObjectWithTag("PointKeeper") as GameObject;
+		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");
 	}
 	
     protected override void OnPowerupReceived(Collider player)

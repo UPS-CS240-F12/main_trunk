@@ -8,6 +8,9 @@
 /Game_Engine/*.csproj
 /Game_Engine/*.sln
 
+# Exception for the BuildSettings.asset file which is in the Library directory:
+!/Game_Engine/Library/BuildSettings.asset
+
 # Mac Files
 *.DS_Store
 
