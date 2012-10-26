@@ -17,7 +17,7 @@ public class NetworkInterface : MonoBehaviour
             newT.name = ("turret" + turret["ID"].str);*/
         }
 
-        //StartCoroutine("PollData");
+        StartCoroutine("PollData");
     }
 
     private IEnumerator PollData()
@@ -28,8 +28,11 @@ public class NetworkInterface : MonoBehaviour
             startTime = Time.realtimeSinceStartup;
             WWW get = new WWW(m_serverURL);
             yield return get;
-            Debug.Log(get.text);
-            HandleJSON(get.text);
+			if (get.error == null)
+			{
+	            Debug.Log(get.text);
+	            HandleJSON(get.text);
+			}
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
         }
     }

@@ -20,6 +20,8 @@ public class PlayerCharacter : MonoBehaviour
 		jumping = false;
 		energyMagnitude = 0.09f;
 		
+		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
+		
 		particleTrail = Instantiate(m_particle, transform.position, Quaternion.identity) as GameObject;
         StartCoroutine("EnergyLossRoutine");
 	}
@@ -78,7 +80,7 @@ public class PlayerCharacter : MonoBehaviour
             }
             */
         }
-        else if(Input.GetButton("Jump") && firstJump)
+        else if(Input.GetButton("Jump") && firstJump && EnergyPoints > 0)
 		{
 			//Perform Jetpack
 			moveDirection.y = moveDirection.y + m_jumpSpeed;
@@ -101,7 +103,13 @@ public class PlayerCharacter : MonoBehaviour
 
         if (transform.position.y < -1000)
         {
-            transform.position = new Vector3(980, 40.08f, 980);
+            //transform.position = new Vector3(980, 100.0f, 980);
+			
+			TileMessenger messenger = new TileMessenger();
+			terrainFactory.SendMessage("GetRandomTile", messenger);
+			
+			transform.position = messenger.message + new Vector3(0, 110, 0);
+			
             HitPoints -= 25;
 
             if (HitPoints <= 0)
@@ -216,6 +224,8 @@ public class PlayerCharacter : MonoBehaviour
     [SerializeField]
     private float m_gravity;
     private float m_fallSpeed = 0;
+	
+	private GameObject terrainFactory;
 
     [SerializeField]
     private int m_hitPoints;
