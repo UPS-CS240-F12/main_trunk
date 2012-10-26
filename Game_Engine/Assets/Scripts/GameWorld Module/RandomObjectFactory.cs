@@ -8,6 +8,11 @@ public class RandomObjectFactory : MonoBehaviour
     {
         Resume();
     }
+	
+	void Awake()
+	{
+		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
+	}
 
     private IEnumerator CreateRandomObjects()
     {
@@ -20,9 +25,12 @@ public class RandomObjectFactory : MonoBehaviour
             waitTime = rand.Next(m_minimumTimeMillis, m_maximumTimeMillis);
             yield return new WaitForSeconds(waitTime / 1000.0f);
 
-            x = m_boundaries.x + ((float)rand.NextDouble() * m_boundaries.width);
-            z = m_boundaries.y + ((float)rand.NextDouble() * m_boundaries.height);
-            Instantiate(m_objectClone, new Vector3(x, m_yOffset, z), Quaternion.identity);
+            //x = m_boundaries.x + ((float)rand.NextDouble() * m_boundaries.width);
+            //z = m_boundaries.y + ((float)rand.NextDouble() * m_boundaries.height);
+			TileMessenger messenger = new TileMessenger();
+			terrainFactory.SendMessage("GetRandomTile", messenger);
+			Instantiate(m_objectClone, messenger.message + new Vector3(0,25,0), Quaternion.identity);
+            //Instantiate(m_objectClone, new Vector3(x, m_yOffset, z), Quaternion.identity);
         }
 
         lock (m_lock)
@@ -65,7 +73,9 @@ public class RandomObjectFactory : MonoBehaviour
     {
         get { return m_maximumTimeMillis; }
     }
-
+	
+	GameObject terrainFactory;
+	
     [SerializeField]
     protected int m_minimumTimeMillis;
     [SerializeField]

@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:Game_Engine/Assets/Models/eye.blend.meta
 guid: 0132e70adc1c33a4b9a9036ba1aaf23e
-=======
-guid: 2f4ae90fe69b5e249813cafb7f5f67ad
->>>>>>> Main Menu Functionality, Tile Upgrade, Jetpack:Game_Engine/Assets/Models/eye.blend.meta
 ModelImporter:
   fileIDToRecycleName:
     4300000: Sphere

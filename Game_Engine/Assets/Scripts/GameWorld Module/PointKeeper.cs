@@ -46,7 +46,7 @@ public class PointKeeper : MonoBehaviour {
 	IEnumerator AddPoints(int newPoints)
 	{
 		points += newPoints;
-		gainCause = "Points: " + points + "\nYou gained " + newPoints + " points!";
+		gainCause = "\nYou gained " + newPoints + " points!";
 		yield return StartCoroutine(MyWaitFunction (3.0f));
 		gain = true;
 		gainCause = "\nYour rank is currently + rank";

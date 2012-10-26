@@ -7,7 +7,13 @@ public class TileState : MonoBehaviour {
 	//float initialMagnitude;
 	Color normColor = Color.white;
 	float life;
+	GameObject terrainFactory;
 	
+	void Awake()
+	{
+		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
+	}
+		
 	IEnumerator Start () 
 	{
 		//float initialMagnitude = magnitude;
@@ -15,6 +21,7 @@ public class TileState : MonoBehaviour {
         yield return StartCoroutine(MyWaitFunction (life));
 		if(remove)
 		{
+			terrainFactory.SendMessage ("RemoveTile", name);
 			this.gameObject.renderer.material.color = Color.yellow;
 			normColor = Color.yellow;
         	yield return StartCoroutine(MyWaitFunction (5.0f));
