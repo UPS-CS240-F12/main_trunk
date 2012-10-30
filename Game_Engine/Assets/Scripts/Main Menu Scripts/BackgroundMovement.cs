@@ -43,7 +43,6 @@ public class BackgroundMovement : MonoBehaviour {
 				else
 					moveMagnitude += 0.02f;
 			}
-			Debug.Log(moveMagnitude);
 		}
 	}
 	

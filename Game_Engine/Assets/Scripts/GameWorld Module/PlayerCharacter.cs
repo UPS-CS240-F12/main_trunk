@@ -5,8 +5,8 @@ public class PlayerCharacter : MonoBehaviour
 {
 	bool firstJump;
 	bool jumping;
+	bool shield;
 	float energyMagnitude;
-	GameObject particleTrail;
 	
 	// Use this for initialization
 	void Start()
@@ -18,11 +18,10 @@ public class PlayerCharacter : MonoBehaviour
 		m_position = transform.position;
 		firstJump = false;
 		jumping = false;
+		shield = false;
 		energyMagnitude = 0.09f;
 		
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
-		
-		particleTrail = Instantiate(m_particle, transform.position, Quaternion.identity) as GameObject;
         StartCoroutine("EnergyLossRoutine");
 	}
 
@@ -124,8 +123,10 @@ public class PlayerCharacter : MonoBehaviour
         m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 400);
 		if(jumping)
 		{
-			Instantiate(m_particle, transform.position, Quaternion.identity);
+			Instantiate(m_jumpParticle, transform.position, Quaternion.identity);
 		}
+		if(shield)
+			Instantiate(m_shieldParticle, transform.position, Quaternion.identity);
 	}
 	
 	public void AddEnergy(int energy)
@@ -141,12 +142,22 @@ public class PlayerCharacter : MonoBehaviour
         if (EnergyPoints < 0)
             EnergyPoints = 0;
 	}
+	
+	public IEnumerator AddShield(float time)
+	{
+		shield = true;
+		yield return new WaitForSeconds(time);
+		shield = false;
+	}
 
     public void Damage(int damage)
     {
-        HitPoints -= damage;
-        if (HitPoints < 0)
-            HitPoints = 0;
+		if(!shield)
+		{
+      		HitPoints -= damage;
+        	if (HitPoints < 0)
+            	HitPoints = 0;
+		}
     }
 
     public float MovementSpeed
@@ -249,5 +260,8 @@ public class PlayerCharacter : MonoBehaviour
     private HUDBarObject m_energyBar;
 	
 	[SerializeField]
-	private GameObject m_particle;
+	private GameObject m_jumpParticle;
+	
+	[SerializeField]
+	private GameObject m_shieldParticle;
 }
