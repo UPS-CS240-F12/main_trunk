@@ -27,6 +27,7 @@ public class TileState : MonoBehaviour {
         	yield return StartCoroutine(MyWaitFunction (5.0f));
 			this.gameObject.renderer.material.color = Color.red;
 			normColor = Color.red;
+			StartCoroutine(FallSequence(true));
 			despawn = true;
 			yield return StartCoroutine(MyWaitFunction (5.0f));
 			//magnitude = initialMagnitude;
@@ -38,9 +39,36 @@ public class TileState : MonoBehaviour {
 	{
 		if(despawn)
 		{
-			transform.position += new Vector3(0,-0.5f,0);
+			//transform.position += new Vector3(0,-0.5f,0);
 		}
 		//magnitude *= 1.01f;
+	}
+	
+	IEnumerator FallSequence(bool destroy)
+	{
+		float xRotation = Random.Range(-1.0f, 0.5f);
+		float yRotation = Random.Range(-1.0f, 0.5f);
+		float zRotation = Random.Range(-1.0f, 0.5f);
+		float fallSpeed;
+		if(destroy)
+		{
+			fallSpeed = Random.Range (0.0f, 0.5f);
+		}
+		else
+		{
+			fallSpeed = 0.0f;
+		}
+		
+		for(int i = 360; i > 0; i--)
+		{
+			transform.Rotate(xRotation,yRotation,zRotation);
+			if(destroy)
+			{
+				transform.position -= new Vector3(0.0f, fallSpeed, 0.0f);
+				fallSpeed += 0.1f;
+			}
+			yield return StartCoroutine(MyWaitFunction (0.05f));
+		}
 	}
 	
 	void OnMouseDown()
