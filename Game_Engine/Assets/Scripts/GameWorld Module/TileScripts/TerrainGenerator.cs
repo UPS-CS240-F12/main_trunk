@@ -5,15 +5,17 @@ public class TerrainGenerator : MonoBehaviour {
 
 	void Start () 
 	{
+		index = 0;
 		totalTiles = 0;
 		gameTiles = new List<GameObject>();
+		emptyLocations = new List<Vector3>();
+		xWidth = m_tileDimensions;
+		zWidth = m_tileDimensions;
 		StartCoroutine("GenerateTiles");
 	}
 	
 	void GenerateTiles()
 	{
-		int xWidth = m_tileDimensions;
-		int zWidth = m_tileDimensions;
 		int x = 0;
 		while(x < m_xSize)
 		{
@@ -40,29 +42,53 @@ public class TerrainGenerator : MonoBehaviour {
 			
 	void RemoveTile(string name)
 	{
-		//Debug.Log ("Tile removing?");
 		for(int i = gameTiles.Count - 1; i >= 0; i--)
 		{
-			GameObject removeMe = gameTiles[i];
-			if(name == removeMe.name)
+			GameObject checkMe = gameTiles[i];
+			if(name == checkMe.name)
 			{
+				Vector3 addMe = gameTiles[i].transform.position;
 				gameTiles.RemoveAt(i);
-				//Debug.Log ("Tile " + name + " removed");
-				i = -1;
+				emptyLocations.Add(addMe);
+				totalTiles--;
 			}
+		}
+		//if(totalTiles == 100)
+			//StartCoroutine("PatternFlip", (int)totalTiles);
+		if(totalTiles < 50)
+			StartCoroutine("RespawnTile");
+	}
+	
+	void PatternFlip(int toFlip)
+	{
+		while(toFlip > 0)
+		{
+			int randIndex = Random.Range(0,99);
+			gameTiles[randIndex].SendMessage("CommandRotate", 6);
+			toFlip--;
 		}
 	}
 	
-	// Update is called once per frame
-	void Update () 
+	//Respawns a tile at a vacant location.
+	void RespawnTile()
 	{
-	
+		Vector3 newLocation = emptyLocations[0];
+		emptyLocations.RemoveAt(0);
+		GameObject tile = Instantiate(m_tileClone, newLocation, 
+				transform.rotation) as GameObject;
+		tile.name = "tile xVal" + newLocation.x + " zVal" + newLocation.z;
+		gameTiles.Add(tile);
+		totalTiles++;
 	}
 	
 	int totalTiles;
+	int index; // Location in the gameTiles list for the searched tile.
+	int xWidth;
+	int zWidth;
 		
 	private List<GameObject> gameTiles;
-
+	private List<Vector3> emptyLocations;
+	
 	[SerializeField]
 	private GameObject m_tileClone;
 	[SerializeField]

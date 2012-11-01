@@ -140,7 +140,7 @@ public class PlayerCharacter : MonoBehaviour
 	{
 		EnergyPoints -= energy;
         if (EnergyPoints < 0)
-            EnergyPoints = 0;
+            Application.LoadLevel("GameOverScene");
 	}
 	
 	public IEnumerator AddShield(float time)

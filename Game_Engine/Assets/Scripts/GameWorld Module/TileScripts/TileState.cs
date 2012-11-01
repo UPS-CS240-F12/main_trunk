@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections; 
 
 public class TileState : MonoBehaviour { 
-    bool despawn = false;
+    bool rotating = false;
 	bool remove = true;
 	//float initialMagnitude;
 	Color normColor = Color.white;
@@ -27,46 +27,59 @@ public class TileState : MonoBehaviour {
         	yield return StartCoroutine(MyWaitFunction (5.0f));
 			this.gameObject.renderer.material.color = Color.red;
 			normColor = Color.red;
-			StartCoroutine(FallSequence(true));
-			despawn = true;
+			StartCoroutine(FallSequence());
+			//Begin rotation at random, not 360 degree flip.
+			StartCoroutine(RotateSequence(false, 1.0f));
 			yield return StartCoroutine(MyWaitFunction (5.0f));
-			//magnitude = initialMagnitude;
 			Destroy(this.gameObject);
 		}
     }
 	
 	void Update()
 	{
-		if(despawn)
-		{
-			//transform.position += new Vector3(0,-0.5f,0);
-		}
-		//magnitude *= 1.01f;
 	}
 	
-	IEnumerator FallSequence(bool destroy)
+	void CommandRotate(float magnitude)
 	{
-		float xRotation = Random.Range(-1.0f, 0.5f);
-		float yRotation = Random.Range(-1.0f, 0.5f);
-		float zRotation = Random.Range(-1.0f, 0.5f);
-		float fallSpeed;
-		if(destroy)
+		this.gameObject.renderer.material.color = Color.red;
+		StartCoroutine(RotateSequence(true, magnitude));
+	}
+	
+	public IEnumerator RotateSequence(bool circle, float magnitude)
+	{
+		rotating = true;
+		float xRotation;
+		float yRotation;
+		float zRotation;
+		
+		if(circle)
 		{
-			fallSpeed = Random.Range (0.0f, 0.5f);
+			xRotation = 1.0f * magnitude;
+			yRotation = 0.0f * magnitude;
+			zRotation = 0.0f * magnitude;
 		}
 		else
 		{
-			fallSpeed = 0.0f;
+			xRotation = Random.Range(-1.0f, 0.5f) * magnitude;
+			yRotation = Random.Range(-1.0f, 0.5f) * magnitude;
+			zRotation = Random.Range(-1.0f, 0.5f) * magnitude;
 		}
-		
-		for(int i = 360; i > 0; i--)
+		for(int i = 180 / (int)magnitude; i > 0; i--)
 		{
 			transform.Rotate(xRotation,yRotation,zRotation);
-			if(destroy)
-			{
+			yield return StartCoroutine(MyWaitFunction (0.05f));
+		}
+		rotating = false;
+	}
+	
+	IEnumerator FallSequence()
+	{
+		
+		float fallSpeed = Random.Range (0.0f, 0.5f);
+		for(int i = 360; i > 0; i--)
+		{
 				transform.position -= new Vector3(0.0f, fallSpeed, 0.0f);
 				fallSpeed += 0.1f;
-			}
 			yield return StartCoroutine(MyWaitFunction (0.05f));
 		}
 	}
@@ -74,6 +87,7 @@ public class TileState : MonoBehaviour {
 	void OnMouseDown()
 	{
 		remove = false;
+		StartCoroutine(RotateSequence(true, 18.0f));
 		normColor = new Color(0.2f,0.9f,0);
 		this.gameObject.renderer.material.color = normColor;
 	}
