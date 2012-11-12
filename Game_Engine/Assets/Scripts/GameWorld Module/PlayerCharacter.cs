@@ -133,14 +133,14 @@ public class PlayerCharacter : MonoBehaviour
 	{
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
-            EnergyPoints = MaxEnergyPoints;
+            Application.LoadLevel("GameOverScene");
 	}
 	
 	public void RemoveEnergy(int energy)
 	{
 		EnergyPoints -= energy;
         if (EnergyPoints < 0)
-            Application.LoadLevel("GameOverScene");
+            EnergyPoints = 0;
 	}
 	
 	public IEnumerator AddShield(float time)
@@ -155,8 +155,8 @@ public class PlayerCharacter : MonoBehaviour
 		if(!shield)
 		{
       		HitPoints -= damage;
-        	if (HitPoints < 0)
-            	HitPoints = 0;
+        	if (HitPoints <= 0)
+				Application.LoadLevel("GameOverScene");
 		}
     }
 

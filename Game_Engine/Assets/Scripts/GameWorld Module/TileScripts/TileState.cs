@@ -22,9 +22,10 @@ public class TileState : MonoBehaviour {
 		if(remove)
 		{
 			terrainFactory.SendMessage ("RemoveTile", name);
+			int difficulty = PlayerPrefs.GetInt("Difficulty");
 			this.gameObject.renderer.material.color = Color.yellow;
 			normColor = Color.yellow;
-        	yield return StartCoroutine(MyWaitFunction (5.0f));
+        	yield return StartCoroutine(MyWaitFunction (3.0f / difficulty));
 			this.gameObject.renderer.material.color = Color.red;
 			normColor = Color.red;
 			StartCoroutine(FallSequence());
@@ -43,6 +44,16 @@ public class TileState : MonoBehaviour {
 	{
 		this.gameObject.renderer.material.color = Color.red;
 		StartCoroutine(RotateSequence(true, magnitude));
+	}
+	
+	IEnumerator RespawnMovement()
+	{
+		float moveDistance = -25.0f;
+		for(int i = 0; i < 20; i++)
+		{
+			transform.position += new Vector3(0.0f,moveDistance,0.0f);
+			yield return StartCoroutine(MyWaitFunction (0.05f));
+		}
 	}
 	
 	public IEnumerator RotateSequence(bool circle, float magnitude)
@@ -70,6 +81,7 @@ public class TileState : MonoBehaviour {
 			yield return StartCoroutine(MyWaitFunction (0.05f));
 		}
 		rotating = false;
+		this.gameObject.renderer.material.color = normColor;
 	}
 	
 	IEnumerator FallSequence()
@@ -79,7 +91,7 @@ public class TileState : MonoBehaviour {
 		for(int i = 360; i > 0; i--)
 		{
 				transform.position -= new Vector3(0.0f, fallSpeed, 0.0f);
-				fallSpeed += 0.1f;
+				fallSpeed += 0.2f;
 			yield return StartCoroutine(MyWaitFunction (0.05f));
 		}
 	}
