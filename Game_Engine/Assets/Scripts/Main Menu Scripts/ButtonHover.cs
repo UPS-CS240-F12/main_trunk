@@ -2,18 +2,31 @@ using UnityEngine;
 using System.Collections; 
 
 public class ButtonHover : MonoBehaviour { 
+	bool hovering;
 	Vector3 defaultLocation;
 	Vector3 offsetPosition;
 	Vector3 offsetStep;
 	float displacement;
+	CharacterController controller;
+	ButtonPush pushMe;
 	
 	void Start()
 	{
+		if(pos == 0)
+		{
+			hovering = true;
+		}
+		else
+		{
+			hovering = false;
+		}
 		defaultLocation = transform.position;
 		offsetStep = new Vector3(offsetX/10, offsetY/10, offsetZ/10);
+		controller = GetComponent<CharacterController>();
+		pushMe = GetComponent<ButtonPush>();
 	}
 	
-	// Called if we collide with something else
+	// Called when we want to begin hovering over a button.
     IEnumerator OnMouseEnter()
     {
 		int curStep = 0; // Total of 10 steps
@@ -43,6 +56,34 @@ public class ButtonHover : MonoBehaviour {
 		}
 	}
 	
+	void Update()
+	{
+		if(Input.GetButtonDown("Jump") && renderer.isVisible)
+		{
+			if(!hovering && pos == 0)
+			{
+				pos = maxPos;
+				StartCoroutine ("OnMouseEnter");
+				hovering = true;
+			}
+			else if(hovering)
+			{
+				StartCoroutine("OnMouseExit");
+				hovering = false;
+				//WaitForClick
+			}
+			else if(pos > 0)
+			{
+				pos--;
+			}
+		}
+		//If Enter pressed, we will call this button's buttonPush
+		if(Input.GetButtonDown("Fire3") && hovering && renderer.isVisible)
+		{
+			pushMe.SendMessage("setClick");
+		}
+	}
+	
     IEnumerator MyWaitFunction (float delay) 
 	{
         float timer = Time.time + delay;
@@ -56,4 +97,9 @@ public class ButtonHover : MonoBehaviour {
 	float offsetY;
 	[SerializeField]
 	float offsetZ;
+	
+	[SerializeField]
+	int pos; // 0 for origin, 1 for next button, 2 for next, etc.
+	[SerializeField]
+	int maxPos; // The total number of buttons in the page (zero inclusive).
 }
