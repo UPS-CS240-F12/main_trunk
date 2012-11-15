@@ -80,8 +80,8 @@ public class RandomObjectFactory : MonoBehaviour
     protected int m_minimumTimeMillis;
     [SerializeField]
     protected int m_maximumTimeMillis;
-    [SerializeField]
-    protected Rect m_boundaries;
+   // [SerializeField]
+   // protected Rect m_boundaries;
     [SerializeField]
     protected int m_yOffset;
 

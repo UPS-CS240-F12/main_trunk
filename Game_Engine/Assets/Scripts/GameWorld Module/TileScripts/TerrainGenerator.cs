@@ -22,8 +22,8 @@ public class TerrainGenerator : MonoBehaviour {
 		int difficulty = PlayerPrefs.GetInt("Difficulty");
 		if(difficulty == 1)
 		{
-			xWidth = 250;
-			zWidth = 250;
+			xWidth = 0.125f; // 10% of total size
+			zWidth = 0.125f;
 			m_tileClone = m_tileEasy;
 			respawnNum = 50;
 			flipNum = 0;
@@ -31,8 +31,8 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 		if(difficulty == 2)
 		{
-			xWidth = 150;
-			zWidth = 150;
+			xWidth = 0.075f;
+			zWidth = 0.075f;
 			m_tileClone = m_tileHard;
 			respawnNum = 45;
 			flipNum = 0;
@@ -40,31 +40,40 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 		if(difficulty == 3)
 		{
-			xWidth = 75;
-			zWidth = 75;
+			xWidth = 0.05f;
+			zWidth = 0.05f;
 			m_tileClone = m_tileExtreme;
 			respawnNum = 100;
 			flipNum = 101;
 			Debug.Log ("Extreme Mode");
 		}
+		xWidth = (int)(m_xSize * xWidth);
+		zWidth = (int)(m_zSize * zWidth);
+		xTiles = m_xSize / (int)xWidth;
+		zTiles = m_zSize / (int)zWidth;
 		StartCoroutine("GenerateTiles");
 	}
 	
+	// Generates tiles with the specified tile dimensions and board size.
 	void GenerateTiles()
 	{
-		int x = 0;
-		while(x < m_xSize)
+		for(int x = -xTiles/2; x < xTiles/2; x++)
 		{
-			for (int z = 0; z < m_zSize; z += zWidth)
+			for (int z = -zTiles/2; z < zTiles/2; z++)
 			{    
-				GameObject tile = Instantiate(m_tileClone, new Vector3(x,-10,z), transform.rotation) as GameObject;
-				tile.name = "tile xVal" + x.ToString() + " zVal" + z.ToString();
+				GameObject tile = Instantiate(m_tileClone, new Vector3(xWidth*x,-10,zWidth*z), transform.rotation) as GameObject;
+				tile.transform.localScale = new Vector3(xWidth, 30, zWidth);
+				tile.SendMessage("SetValues", new Vector2(x,z));
+				tile.name = "tile x" + x + " z" + z;
 				gameTiles.Add(tile);
-				//Debug.Log ("Tile " + tile.name + " added");
 				totalTiles++;
 			}
-			x += xWidth;
 		}
+	}
+	
+	Vector2 GetNumColumnsRows()
+	{
+		return new Vector2(xWidth,zWidth);
 	}
 	
 	void GetRandomTile(TileMessenger messenger)
@@ -72,9 +81,19 @@ public class TerrainGenerator : MonoBehaviour {
 		totalTiles = gameTiles.Count;
 		int index = (int)Random.Range(0, totalTiles);
 		Vector3 ret = gameTiles[index].transform.position;
-		//Debug.Log ("I just sent " + gameTiles[index].name + "'s location!");
 		messenger.message = ret;
 	}
+	
+	/*void ColorCycle()
+	{
+		totalTiles = gameTiles.Count;
+		int index = 0;
+		while(index < totalTiles)
+		{
+			gameTiles[index].SendMessage("ColorShift");
+			index++;
+		}
+	}*/
 			
 	void RemoveTile(string name)
 	{
@@ -83,7 +102,9 @@ public class TerrainGenerator : MonoBehaviour {
 			GameObject checkMe = gameTiles[i];
 			if(name == checkMe.name)
 			{
-				Vector3 addMe = gameTiles[i].transform.position;
+				TileMessenger messenger = new TileMessenger();
+				gameTiles[i].SendMessage("SendLocation", messenger);
+				Vector3 addMe = messenger.message;
 				gameTiles.RemoveAt(i);
 				emptyLocations.Add(addMe);
 				totalTiles--;
@@ -109,11 +130,13 @@ public class TerrainGenerator : MonoBehaviour {
 	{
 		Vector3 newLocation = emptyLocations[0];
 		emptyLocations.RemoveAt(0);
-		GameObject tile = Instantiate(m_tileClone, newLocation += new Vector3(0,500,0), 
-				transform.rotation) as GameObject;
-		tile.name = "tile xVal" + newLocation.x + " zVal" + newLocation.z;
-		tile.SendMessage("CommandRotate", 6);
-		tile.SendMessage("RespawnMovement", 6);
+		newLocation.Scale (new Vector3(xWidth, 1, zWidth));
+		GameObject tile = Instantiate(m_tileClone, newLocation, transform.rotation) as GameObject;
+		tile.transform.localScale = new Vector3(xWidth, 30, zWidth);
+		tile.transform.position -= new Vector3(0,10,0); // Temporary fix to respawn height error.
+		tile.name = "tile x" + newLocation.x.ToString () + " z" + newLocation.z.ToString (); // Renaming Error
+		//tile.SendMessage("CommandRotate", 6);
+		//tile.SendMessage("RespawnMovement", 6);
 		//Debug.Log ("Tile Respawning");
 		gameTiles.Add(tile);
 		totalTiles++;
@@ -121,8 +144,11 @@ public class TerrainGenerator : MonoBehaviour {
 	
 	int totalTiles;
 	int index; // Location in the gameTiles list for the searched tile.
-	int xWidth;
-	int zWidth;
+	float xWidth;
+	float zWidth;
+	
+	int xTiles; // The number of tiles along the X axis.
+	int zTiles; // The number of tiles along the Z axis.
 	
 	int respawnNum; // The minimum number of tiles possible.
 	int flipNum; // The number of tiles remaining at which point the game will start getting extremely hard.
@@ -146,7 +172,7 @@ public class TerrainGenerator : MonoBehaviour {
 	[SerializeField]
 	private int m_zSize;
 	[SerializeField]
-	private int m_tileDimensions;
+	private float m_tileDimensions;
 	
 
 }

@@ -3,8 +3,9 @@ using System.Collections;
 
 public class Shield : Powerup
 {
-	void Start()
+	protected virtual void Start()
 	{
+		base.Start();
 		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");
 	}
 	

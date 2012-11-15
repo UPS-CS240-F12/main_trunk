@@ -3,8 +3,9 @@ using System.Collections;
 
 public class Battery : Powerup
 {
-	void Start()
+	protected virtual void Start()
 	{
+		base.Start();
 		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");
 	}
 	

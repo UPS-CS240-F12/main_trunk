@@ -8,6 +8,8 @@ public class TileState : MonoBehaviour {
 	Color normColor = Color.white;
 	float life;
 	GameObject terrainFactory;
+	int xVal;
+	int zVal;
 	
 	void Awake()
 	{
@@ -104,7 +106,7 @@ public class TileState : MonoBehaviour {
 		this.gameObject.renderer.material.color = normColor;
 	}
 
-    void OnMouseEnter()
+    /*void OnMouseEnter()
     {
 		this.gameObject.renderer.material.color = new Color(0,0,1);
     }
@@ -119,7 +121,41 @@ public class TileState : MonoBehaviour {
 			newColor += 0.1f;
 		}
 		this.gameObject.renderer.material.color = normColor;
+	}*/
+	
+	void SetValues(Vector2 vals)
+	{
+		xVal = (int)vals.x;
+		zVal = (int)vals.y;
 	}
+	
+	void SendLocation(TileMessenger messenger)
+	{
+		Vector3 ret = new Vector3(xVal,0,zVal);
+		messenger.message = ret;
+	}
+	
+	/*IEnumerator ColorShift()
+	{
+		float newColor = 1.0f;
+		while(true)
+		{
+		while (newColor >= 0.0f)
+		{
+			this.gameObject.renderer.material.color = new Color(newColor,newColor,newColor);
+			yield return StartCoroutine(MyWaitFunction (0.05f));
+			newColor -= 0.01f;
+		}
+		yield return StartCoroutine(MyWaitFunction (10.0f));
+		while (newColor <= 1.0f)
+		{
+			this.gameObject.renderer.material.color = new Color(newColor,newColor,newColor);
+			yield return StartCoroutine(MyWaitFunction (0.05f));
+			newColor += 0.01f;
+		}
+		yield return StartCoroutine (MyWaitFunction (10.0f));
+		}
+	}*/
 	
     IEnumerator MyWaitFunction (float delay) 
 	{

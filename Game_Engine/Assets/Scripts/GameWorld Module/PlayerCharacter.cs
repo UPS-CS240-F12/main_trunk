@@ -3,10 +3,6 @@ using System.Collections;
 
 public class PlayerCharacter : MonoBehaviour
 {
-	bool firstJump;
-	bool jumping;
-	bool shield;
-	float energyMagnitude;
 	
 	// Use this for initialization
 	void Start()
@@ -20,6 +16,8 @@ public class PlayerCharacter : MonoBehaviour
 		jumping = false;
 		shield = false;
 		energyMagnitude = 0.09f;
+		moveBonus = 1;
+		defaultSpeed = m_movementSpeed;
 		
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
         StartCoroutine("EnergyLossRoutine");
@@ -52,7 +50,9 @@ public class PlayerCharacter : MonoBehaviour
         if (Input.GetButton("Roll"))
             moveDirection *= m_rollSpeed;
         else
-            moveDirection *= m_movementSpeed;
+		{
+            moveDirection *= m_movementSpeed + moveBonus;
+		}
 
         /*
         float curSpeed = movementSpeed * InputControls.GetMovement();
@@ -61,16 +61,22 @@ public class PlayerCharacter : MonoBehaviour
 
         if (controller.isGrounded)
         {
+			
 			energyMagnitude = 0;
             if (Input.GetButton("Jump"))
             {
+				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
                 moveDirection.y = m_jumpSpeed;
 				firstJump = false;
             }
             else
+			{
+				if(moveBonus < 100)
+					moveBonus++;
                 m_fallSpeed = 0;
 				firstJump = false;
+			}
             /*
             if (InputControls.IsJumping() == true)
             {
@@ -222,6 +228,13 @@ public class PlayerCharacter : MonoBehaviour
 	{
 		get { return m_position; }
 	}
+	
+	bool firstJump;
+	bool jumping;
+	bool shield;
+	float energyMagnitude;
+	int moveBonus;
+	float defaultSpeed;
 	
     [SerializeField]
     private float m_movementSpeed;
