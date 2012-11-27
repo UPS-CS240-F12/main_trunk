@@ -74,6 +74,20 @@ public class TowerObject : MonoBehaviour {
 		set { m_player = value; }
 	}
 
+    public string OwnerID
+    {
+        get { return m_ownerID; }
+        set { m_ownerID = value; }
+    }
+
+    public string ID
+    {
+        get { return m_ID; }
+        set { m_ID = value; }
+    }
+
+    private string m_ID = null;
+
 	// public float DampingCoefficient
 	// {
 	// 	get { return m_dampingCoeff; }
@@ -107,4 +121,5 @@ public class TowerObject : MonoBehaviour {
 	// [SerializeField]
 	private float m_minRange;
 
+    private string m_ownerID;
 }

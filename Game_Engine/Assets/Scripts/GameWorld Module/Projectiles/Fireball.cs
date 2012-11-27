@@ -14,6 +14,14 @@ public class Fireball : Projectile
         set { m_damage = value; }
     }
 
+    public string ID
+    {
+        get { return m_ID; }
+        set { m_ID = value; }
+    }
+
+    private string m_ID = null;
+
     [SerializeField]
     private int m_damage;
 }

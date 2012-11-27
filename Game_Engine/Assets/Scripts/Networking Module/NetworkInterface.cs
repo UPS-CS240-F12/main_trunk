@@ -8,16 +8,8 @@ public class NetworkInterface : MonoBehaviour
 {
     void Start()
     {
-        JSONObject obj = new JSONObject("{\"turret\":{\"ID\":\"1\",\"position\":\"1400,0,1400\"}}");
-
-        //foreach (JSONObject turret in obj["turrets"].list)
-        {
-            HandleJSON(obj);
-            /*GameObject newT = Instantiate(m_turretClone, ParseVector3(turret["position"].str), Quaternion.identity) as GameObject;
-            newT.name = ("turret" + turret["ID"].str);*/
-        }
-
-        StartCoroutine("PollData");
+        //StartCoroutine("PollData");
+        StartCoroutine("SendData");
     }
 
     private IEnumerator PollData()
@@ -31,198 +23,305 @@ public class NetworkInterface : MonoBehaviour
 			if (get.error == null)
 			{
 	            Debug.Log(get.text);
-	            HandleJSON(get.text);
+                ParseJSON(new JSONObject(get.text));
 			}
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
         }
     }
 
-    private void HandleJSONArray(string name, JSONObject arrayObj)
+    private IEnumerator SendData()
     {
-        if (arrayObj.type != JSONObject.Type.ARRAY)
-            return;
-
-        foreach (JSONObject obj in arrayObj.list)
+        float startTime;
+        while (true)
         {
-            HandleJSONObject(name, obj);
+            startTime = Time.realtimeSinceStartup;
+            JSONObject newEngineData = new JSONObject();
+            newEngineData.type = JSONObject.Type.OBJECT;
+            newEngineData.AddField("engine", GetUpdatedEngineJSON());
+            WWW post = new WWW(m_serverURL, System.Text.Encoding.UTF8.GetBytes(newEngineData.ToString()));
+            yield return post;
+            if (post.error == null)
+            {
+                ParseJSON(new JSONObject(post.text));
+            }
+            yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
         }
     }
 
-    private bool TryJSONToInt(JSONObject jsonObj, ref int value)
+    private JSONObject GetUpdatedEngineJSON()
     {
-        if (jsonObj == null)
+        JSONObject engine = new JSONObject();
+        engine.type = JSONObject.Type.OBJECT;
+
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
         {
-            return false;
+            PlayerCharacter playerScript = player.GetComponent<PlayerCharacter>();
+            if (playerScript != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField("energy", playerScript.EnergyPoints);
+                jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(player.transform.position));
+                jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(player.transform.rotation.eulerAngles));
+                engine.AddField("player", jsonTemp);
+            }
         }
-        if (jsonObj.type == JSONObject.Type.NUMBER)
+
+        JSONObject batteryGroup = new JSONObject();
+        batteryGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Batteries"))
         {
-            value = (int)jsonObj.n;
-            return true;
+            JSONObject jsonTemp = new JSONObject();
+            jsonTemp.type = JSONObject.Type.OBJECT;
+            jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+            batteryGroup.AddField(obj.GetInstanceID().ToString(), jsonTemp);
         }
-        else if (jsonObj.type == JSONObject.Type.STRING)
+        engine.AddField("batteries", batteryGroup);
+
+        JSONObject bulletGroup = new JSONObject();
+        bulletGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Bullets"))
         {
-            return int.TryParse(jsonObj.str, out value);
+            JSONObject jsonTemp = new JSONObject();
+            jsonTemp.type = JSONObject.Type.OBJECT;
+            jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+            jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
+            bulletGroup.AddField(obj.GetInstanceID().ToString(), jsonTemp);
         }
-        else
+        engine.AddField("turretBullets", bulletGroup);
+
+        JSONObject fireballGroup = new JSONObject();
+        fireballGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Fireballs"))
         {
-            return false;
+            Fireball fireballScript = obj.GetComponent<Fireball>();
+            if (fireballScript != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+                jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
+                fireballGroup.AddField(fireballScript.ID, jsonTemp);
+            }
         }
+        engine.AddField("fireballs", fireballGroup);
+
+        JSONObject eyeballGroup = new JSONObject();
+        eyeballGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Eyeballs"))
+        {
+            MobileCamera eyeScript = obj.GetComponent<MobileCamera>();
+            if (eyeScript != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+                jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
+                eyeballGroup.AddField(eyeScript.DeviceID, jsonTemp);
+            }
+        }
+        engine.AddField("eyeballs", eyeballGroup);
+
+        JSONObject towerGroup = new JSONObject();
+        towerGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Towers"))
+        {
+            TowerObject script = obj.GetComponent<TowerObject>();
+            if (script != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+                jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.Find("Top").rotation.eulerAngles));
+                jsonTemp.AddField(OwnerString, script.OwnerID);
+                towerGroup.AddField(script.ID, jsonTemp);
+            }
+        }
+        engine.AddField("turrets", towerGroup);
+
+        if (m_enableDeletedTiles == true)
+        {
+            TerrainGenerator script = m_terrainFactory.GetComponent<TerrainGenerator>();
+            if (script != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField("rows", 1);
+                jsonTemp.AddField("columns", 1);
+                JSONObject delTiles = new JSONObject();
+                delTiles.type = JSONObject.Type.ARRAY;
+                jsonTemp.AddField("deletedTiles", delTiles);
+
+                engine.AddField("platforms", jsonTemp);
+            }
+        }
+
+        return engine;
     }
 
-    private bool TryJSONToFloat(JSONObject jsonObj, ref float value)
-    {
-        if (jsonObj == null)
-        {
-            return false;
-        }
-        if (jsonObj.type == JSONObject.Type.NUMBER)
-        {
-            value = (float)jsonObj.n;
-            return true;
-        }
-        else if (jsonObj.type == JSONObject.Type.STRING)
-        {
-            return float.TryParse(jsonObj.str, out value);
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    KeyValuePair<bool, Vector3> ParseJSONPosition(JSONObject jsonPosition)
-    {
-        if (jsonPosition == null) 
-            return new KeyValuePair<bool,Vector3>(false, Vector3.zero);
-
-        Vector3 position;
-
-        switch (jsonPosition.type)
-        {
-            case JSONObject.Type.STRING:
-                try
-                {
-                    position = ParseVector3(jsonPosition.str);
-                }
-                catch (InvalidOperationException)
-                {
-                    return new KeyValuePair<bool,Vector3>(false, Vector3.zero);
-                }
-                break;
-
-            case JSONObject.Type.OBJECT:
-                float coord = 0.0f;
-
-                if (TryJSONToFloat(jsonPosition[XString], ref coord) == false)
-                    return new KeyValuePair<bool, Vector3>(false, Vector3.zero);
-                position.x = coord;
-
-                if (TryJSONToFloat(jsonPosition[YString], ref coord) == false)
-                    return new KeyValuePair<bool, Vector3>(false, Vector3.zero);
-                position.y = coord;
-
-                if (TryJSONToFloat(jsonPosition[ZString], ref coord) == false)
-                    return new KeyValuePair<bool, Vector3>(false, Vector3.zero);
-                position.z = coord;
-                break;
-
-            default: // Invalid JSON
-                return new KeyValuePair<bool,Vector3>(false, Vector3.zero);
-        }
-
-        return new KeyValuePair<bool, Vector3>(true, position);
-    }
-
-    private void HandleJSON(string s)
-    {
-        HandleJSON(new JSONObject(s));
-    }
-
-    private void HandleJSON(JSONObject obj)
-    {
-        if (obj == null)
-            return;
-
-        if (obj[TurretString] != null)
-            HandleJSONObject(TurretString, obj[TurretString]);
-    }
-
-    private void HandleJSONObject(string name, JSONObject obj)
+    private void ParseJSON(JSONObject obj)
     {
         if (obj == null || obj.type == JSONObject.Type.NULL)
             return;
 
-        int id = 0;
-        if (TryJSONToInt(obj[IDString], ref id) == false)
+        JSONObject phonesTag = obj[PhonesString];
+
+        if (phonesTag == null || phonesTag.type != JSONObject.Type.OBJECT)
             return;
 
-        KeyValuePair<bool, Vector3> position = ParseJSONPosition(obj[PositionString]);
+        GameObject[] turrets = GameObject.FindGameObjectsWithTag("Towers");
+        bool[] existingTurrets = new bool[turrets.Length]; // Initializes as false
 
-        if (position.Key == false)
-            return;
-
-        GameObject cloneObject;
-        if (name == TurretString)
-            cloneObject = m_turretClone;
-        else
+        for (int i = 0; i < phonesTag.keys.Count; ++i)
         {
-            Debug.LogWarning("Invalid JSON object: " + name);
-            return;
+            JSONObject phone = phonesTag[i];
+            if (phone == null)
+                continue;
+
+            string phoneID = phonesTag.keys[i].ToString();
+
+            KeyValuePair<bool, Vector3> position = JSONUtils.ParseXYZTriplet(phone[PositionString]);
+            KeyValuePair<bool, Vector3> rotation = JSONUtils.ParseXYZTriplet(phone[RotationString]);
+
+            if (position.Key == true && rotation.Key == true)
+            {
+                GameObject eyeObj = UpdateObject("eyeball" + phoneID, position.Value, Quaternion.Euler(rotation.Value), m_eyeballClone);
+                MobileCamera eyeScript = eyeObj.GetComponent<MobileCamera>();
+                if (eyeScript != null)
+                    eyeScript.DeviceID = phoneID;
+            }
+
+            JSONObject requests = phone[RequestsString];
+            if (requests != null)
+            {
+                // Loop through requests
+                foreach (JSONObject nextRequest in requests.list)
+                {
+                    //      If requests is fireball creation
+                    if (nextRequest.str == "fireballs")
+                    {
+                        foreach (JSONObject nextFireball in nextRequest.list)
+                        {
+                            position = JSONUtils.ParseXYZTriplet(nextFireball[PositionString]);
+                            rotation = JSONUtils.ParseXYZTriplet(nextFireball[RotationString]);
+
+                            if (position.Key == true && rotation.Key == true)
+                            {
+                                GameObject fireballObj = UpdateObject("fireball", position.Value, Quaternion.Euler(rotation.Value), m_fireballClone);
+                                Fireball fireballScript = fireballObj.GetComponent<Fireball>();
+                                if (fireballScript != null)
+                                    fireballScript.ID = nextFireball.str;
+                            }
+                        }
+                    }
+                    //      Else if request is turret creation
+                    else if (nextRequest.str == "objectPlacement")
+                    {
+                        string type;
+                        foreach (JSONObject nextObj in nextRequest.list)
+                        {
+                            position = JSONUtils.ParseXYZTriplet(nextObj[PositionString]);
+                            rotation = JSONUtils.ParseXYZTriplet(nextObj[RotationString]);
+                            type = nextObj["type"].str;
+
+                            string jsonID = nextObj.str;
+                            if (jsonID == null)
+                                continue;
+
+                            // TODO: account for types that are not turrets
+
+                            if (position.Key == true && rotation.Key == true)
+                            {
+                                switch (type)
+                                {
+                                case "turret":
+                                    string turretName = "turret" + jsonID;
+                                    string owner = GetOwner(turretName, turrets);
+                                    if (owner == null || owner == phoneID || phonesTag.keys.Contains(owner) == false)
+                                    {
+                                        existingTurrets[i] = true;
+                                        GameObject turret = UpdateObject(turretName, position.Value, Quaternion.Euler(rotation.Value), m_turretClone);
+                                        TowerObject turretScript = turret.GetComponent<TowerObject>();
+                                        if (turretScript != null)
+                                        {
+                                            turretScript.OwnerID = phoneID;
+                                            turretScript.ID = jsonID;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        UpdateObject(name, id, position.Value, cloneObject);
-    }
-
-    private static Vector3 ParseVector3(string s)
-    {
-        char[] comma = { ',' };
-        string[] nums = s.Split(comma, 3);
-
-        if (nums.Length != 3)
-            throw new InvalidOperationException();
-        else
+        for (int i = 0; i < existingTurrets.Length; ++i)
         {
-            Vector3 retVec = Vector3.zero;
-            float coord;
+            if (existingTurrets[i] == false)
+            {
+                Destroy(turrets[i]);
+            }
+        }
 
-            if (float.TryParse(nums[0], out coord) == false)
-                throw new InvalidOperationException();
-            retVec.x = coord;
-
-            if (float.TryParse(nums[1], out coord) == false)
-                throw new InvalidOperationException();
-            retVec.y = coord;
-
-            if (float.TryParse(nums[2], out coord) == false)
-                throw new InvalidOperationException();
-            retVec.z = coord;
-
-            return retVec;
+        JSONObject webTag = obj[WebString];
+        if (webTag != null)
+        {
+            JSONObject twitterTag = webTag[TwitterString];
+            if (twitterTag != null)
+            {
+                JSONObject activeEffectTag = twitterTag["activeEffect"];
+                if (activeEffectTag != null)
+                {
+                    string effect = activeEffectTag.str;
+                    switch (effect)
+                    {
+                        case "none":
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
     }
 
-    private static void UpdateObject(string name, int id, Vector3 position, GameObject objectClone)
+    private static string GetOwner(string turretID, GameObject[] turrets)
     {
-        UpdateObject(name + id, position, objectClone);
+        foreach (GameObject nextTurret in turrets)
+        {
+            TowerObject script = nextTurret.GetComponent<TowerObject>();
+            if (turretID == nextTurret.name && script != null)
+                return script.OwnerID;
+        }
+
+        return null;
     }
 
-    private static void UpdateObject(string name, string id, Vector3 position, GameObject objectClone)
+    private static GameObject UpdateObject(string nameAndID, Vector3 position, GameObject objectClone)
     {
-        UpdateObject(name + id, position, objectClone);
+        return UpdateObject(nameAndID, position, Quaternion.identity, objectClone);
     }
 
-    private static void UpdateObject(string nameAndID, Vector3 position, GameObject objectClone)
+    private static GameObject UpdateObject(string nameAndID, Vector3 position, Quaternion rotation, GameObject objectClone)
     {
         GameObject obj = GameObject.Find(nameAndID);
         if (obj == null)
         {
-            obj = Instantiate(objectClone, position, Quaternion.identity) as GameObject;
+            obj = Instantiate(objectClone, position, rotation) as GameObject;
             obj.name = nameAndID;
         }
         else
         {
             obj.transform.position = position;
+            obj.transform.rotation = rotation;
         }
+
+        return obj;
     }
 
     [SerializeField]
@@ -233,12 +332,24 @@ public class NetworkInterface : MonoBehaviour
 
     [SerializeField]
     private GameObject m_turretClone;
+    [SerializeField]
+    private GameObject m_eyeballClone;
+    [SerializeField]
+    private GameObject m_fireballClone;
+    [SerializeField]
+    private GameObject m_terrainFactory;
 
+    private const string EngineString = "engine";
+    private const string PhonesString = "phones";
     private const string TurretString = "turret";
+    private const string WebString = "web";
+    private const string TwitterString = "twitter";
+
     private const string IDString = "ID";
     private const string PositionString = "position";
+    private const string RotationString = "rotation";
+    private const string OwnerString = "ownerID";
+    private const string RequestsString = "requests";
 
-    private const string XString = "x";
-    private const string YString = "y";
-    private const string ZString = "z";
+    private bool m_enableDeletedTiles = false;
 }

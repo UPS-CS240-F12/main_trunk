@@ -33,6 +33,14 @@ public class MobileCamera : MonoBehaviour
         fireball.GetComponent<Projectile>().Direction = transform.TransformDirection(Vector3.forward);
     }
 
+    public string DeviceID
+    {
+        get { return m_deviceID; }
+        set { m_deviceID = value; }
+    }
+
+    private string m_deviceID = null;
+
     [SerializeField]
     private GameObject m_fireballClone;
 }
