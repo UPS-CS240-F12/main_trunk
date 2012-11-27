@@ -43,6 +43,11 @@ public class PointKeeper : MonoBehaviour {
 		}
 	}
 	
+	void EndGame()
+	{
+		Application.LoadLevel("EndGameScene");
+	}
+	
 	IEnumerator AddPoints(int newPoints)
 	{
 		points += newPoints;

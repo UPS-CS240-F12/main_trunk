@@ -29,7 +29,7 @@ public class RandomObjectFactory : MonoBehaviour
             //z = m_boundaries.y + ((float)rand.NextDouble() * m_boundaries.height);
 			TileMessenger messenger = new TileMessenger();
 			terrainFactory.SendMessage("GetRandomTile", messenger);
-			Instantiate(m_objectClone, messenger.message + new Vector3(0,25,0), Quaternion.identity);
+			Instantiate(m_objectClone, messenger.message + new Vector3(0,45,0), Quaternion.identity);
             //Instantiate(m_objectClone, new Vector3(x, m_yOffset, z), Quaternion.identity);
         }
 
@@ -80,8 +80,8 @@ public class RandomObjectFactory : MonoBehaviour
     protected int m_minimumTimeMillis;
     [SerializeField]
     protected int m_maximumTimeMillis;
-    [SerializeField]
-    protected Rect m_boundaries;
+   // [SerializeField]
+   // protected Rect m_boundaries;
     [SerializeField]
     protected int m_yOffset;
 

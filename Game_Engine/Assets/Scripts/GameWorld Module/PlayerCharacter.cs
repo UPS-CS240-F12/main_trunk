@@ -3,10 +3,6 @@ using System.Collections;
 
 public class PlayerCharacter : MonoBehaviour
 {
-	bool firstJump;
-	bool jumping;
-	float energyMagnitude;
-	GameObject particleTrail;
 	
 	// Use this for initialization
 	void Start()
@@ -18,11 +14,12 @@ public class PlayerCharacter : MonoBehaviour
 		m_position = transform.position;
 		firstJump = false;
 		jumping = false;
+		shield = false;
 		energyMagnitude = 0.09f;
+		moveBonus = 1;
+		defaultSpeed = m_movementSpeed;
 		
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
-		
-		particleTrail = Instantiate(m_particle, transform.position, Quaternion.identity) as GameObject;
         StartCoroutine("EnergyLossRoutine");
 	}
 
@@ -53,7 +50,9 @@ public class PlayerCharacter : MonoBehaviour
         if (Input.GetButton("Roll"))
             moveDirection *= m_rollSpeed;
         else
-            moveDirection *= m_movementSpeed;
+		{
+            moveDirection *= m_movementSpeed + moveBonus;
+		}
 
         /*
         float curSpeed = movementSpeed * InputControls.GetMovement();
@@ -62,16 +61,22 @@ public class PlayerCharacter : MonoBehaviour
 
         if (controller.isGrounded)
         {
+			
 			energyMagnitude = 0;
             if (Input.GetButton("Jump"))
             {
+				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
                 moveDirection.y = m_jumpSpeed;
 				firstJump = false;
             }
             else
+			{
+				if(moveBonus < 100)
+					moveBonus++;
                 m_fallSpeed = 0;
 				firstJump = false;
+			}
             /*
             if (InputControls.IsJumping() == true)
             {
@@ -124,15 +129,17 @@ public class PlayerCharacter : MonoBehaviour
         m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 400);
 		if(jumping)
 		{
-			Instantiate(m_particle, transform.position, Quaternion.identity);
+			Instantiate(m_jumpParticle, transform.position, Quaternion.identity);
 		}
+		if(shield)
+			Instantiate(m_shieldParticle, transform.position, Quaternion.identity);
 	}
 	
 	public void AddEnergy(int energy)
 	{
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
-            EnergyPoints = MaxEnergyPoints;
+            Application.LoadLevel("GameOverScene");
 	}
 	
 	public void RemoveEnergy(int energy)
@@ -141,12 +148,22 @@ public class PlayerCharacter : MonoBehaviour
         if (EnergyPoints < 0)
             EnergyPoints = 0;
 	}
+	
+	public IEnumerator AddShield(float time)
+	{
+		shield = true;
+		yield return new WaitForSeconds(time);
+		shield = false;
+	}
 
     public void Damage(int damage)
     {
-        HitPoints -= damage;
-        if (HitPoints < 0)
-            HitPoints = 0;
+		if(!shield)
+		{
+      		HitPoints -= damage;
+        	if (HitPoints <= 0)
+				Application.LoadLevel("GameOverScene");
+		}
     }
 
     public float MovementSpeed
@@ -212,6 +229,13 @@ public class PlayerCharacter : MonoBehaviour
 		get { return m_position; }
 	}
 	
+	bool firstJump;
+	bool jumping;
+	bool shield;
+	float energyMagnitude;
+	int moveBonus;
+	float defaultSpeed;
+	
     [SerializeField]
     private float m_movementSpeed;
     [SerializeField]
@@ -249,5 +273,8 @@ public class PlayerCharacter : MonoBehaviour
     private HUDBarObject m_energyBar;
 	
 	[SerializeField]
-	private GameObject m_particle;
+	private GameObject m_jumpParticle;
+	
+	[SerializeField]
+	private GameObject m_shieldParticle;
 }

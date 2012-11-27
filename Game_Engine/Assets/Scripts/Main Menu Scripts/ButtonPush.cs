@@ -19,20 +19,25 @@ public class ButtonPush : MonoBehaviour
 		click = true;
 	}
 	
+	void setClick()
+	{
+		click = true;
+	}
+	
 	// Update is called once per frame
 	void Update()
 	{
 		if(level == "Options" && click)
 		{
 			m_camera.SendMessage("RotateRight");
-			m_light.SendMessage ("RotateRight");
+			m_light.SendMessage("RotateRight");
 			click = false;
 		}
 		else if(level == "Credits" && click)
 		{
 			//Holder for moving to credits not loading game
 			m_camera.SendMessage("RotateLeft");
-			m_light.SendMessage ("RotateLeft");
+			m_light.SendMessage("RotateLeft");
 			click = false;
 		}
 		else if(click)
