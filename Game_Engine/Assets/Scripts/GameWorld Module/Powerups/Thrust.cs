@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Shield : Powerup
+public class Thrust : Powerup
 {
 	protected virtual void Start()
 	{
@@ -11,15 +11,17 @@ public class Shield : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
-        player.SendMessage("AddShield", m_activeTime);
+        player.SendMessage("AddThrust");
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }
+
+    [SerializeField]
+    private int m_energyGain;
+	
 	private GameObject m_pointKeeper;
 	
 	[SerializeField]
 	private int m_pointValue;
-	[SerializeField]
-	private float m_activeTime;
 	[SerializeField]
 	string m_displayMessage;
 }

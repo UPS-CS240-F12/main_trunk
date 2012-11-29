@@ -14,28 +14,14 @@ public class TileState : MonoBehaviour {
 	void Awake()
 	{
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
+		/*TileMessenger colorMessage = new TileMessenger();
+		terrainFactory.SendMessage ("ReturnColor", colorMessage);
+		Vector3 temp = colorMessage.message;
+		this.gameObject.renderer.material.color = new Color (temp.x, temp.y, temp.z);*/
 	}
 		
-	IEnumerator Start () 
+	void Start () 
 	{
-		//float initialMagnitude = magnitude;
-		life = Random.Range(lowerRange, upperRange);
-        yield return StartCoroutine(MyWaitFunction (life));
-		if(remove)
-		{
-			terrainFactory.SendMessage ("RemoveTile", name);
-			int difficulty = PlayerPrefs.GetInt("Difficulty");
-			this.gameObject.renderer.material.color = Color.yellow;
-			normColor = Color.yellow;
-        	yield return StartCoroutine(MyWaitFunction (3.0f / difficulty));
-			this.gameObject.renderer.material.color = Color.red;
-			normColor = Color.red;
-			StartCoroutine(FallSequence());
-			//Begin rotation at random, not 360 degree flip.
-			StartCoroutine(RotateSequence(false, 1.0f));
-			yield return StartCoroutine(MyWaitFunction (5.0f));
-			Destroy(this.gameObject);
-		}
     }
 	
 	void Update()
@@ -98,6 +84,38 @@ public class TileState : MonoBehaviour {
 		}
 	}
 	
+	IEnumerator DeleteTile()
+	{
+		this.gameObject.renderer.material.color = Color.yellow;
+		normColor = Color.yellow;
+       	yield return StartCoroutine(MyWaitFunction (1.0f));
+		int counter = 40;
+		bool flag = false;
+		float shade = 1.0f;
+		while(counter > 0)
+		{
+			yield return StartCoroutine (MyWaitFunction (0.05f));
+			this.gameObject.renderer.material.color = new Color(shade, 0.0f, 0.0f);
+			if(shade > 0.9f)
+				flag = true;
+			if(shade < 0.1f)
+				flag = false;
+			if(flag)
+				shade -= 0.2f;
+			else
+				shade += 0.2f;
+			counter--;
+		}
+		this.gameObject.renderer.material.color = Color.red;
+		normColor = Color.red;
+		StartCoroutine(FallSequence());
+		//Begin rotation at random, not 360 degree flip.
+		StartCoroutine(RotateSequence(false, 1.0f));
+		yield return StartCoroutine(MyWaitFunction (5.0f));
+		Destroy(this.gameObject);
+	}
+	
+	/* Temporary method for safe zones. */
 	void OnMouseDown()
 	{
 		remove = false;
@@ -105,23 +123,6 @@ public class TileState : MonoBehaviour {
 		normColor = new Color(0.2f,0.9f,0);
 		this.gameObject.renderer.material.color = normColor;
 	}
-
-    /*void OnMouseEnter()
-    {
-		this.gameObject.renderer.material.color = new Color(0,0,1);
-    }
-	
-	IEnumerator OnMouseExit()
-	{
-		float newColor = 0.0f;
-		while (newColor < 1.0f)
-		{
-			this.gameObject.renderer.material.color = new Color(newColor,newColor,1);
-			yield return StartCoroutine(MyWaitFunction (0.05f));
-			newColor += 0.1f;
-		}
-		this.gameObject.renderer.material.color = normColor;
-	}*/
 	
 	void SetValues(Vector2 vals)
 	{
@@ -135,27 +136,11 @@ public class TileState : MonoBehaviour {
 		messenger.message = ret;
 	}
 	
-	/*IEnumerator ColorShift()
+	void ColorShift(Color newColor)
 	{
-		float newColor = 1.0f;
-		while(true)
-		{
-		while (newColor >= 0.0f)
-		{
-			this.gameObject.renderer.material.color = new Color(newColor,newColor,newColor);
-			yield return StartCoroutine(MyWaitFunction (0.05f));
-			newColor -= 0.01f;
-		}
-		yield return StartCoroutine(MyWaitFunction (10.0f));
-		while (newColor <= 1.0f)
-		{
-			this.gameObject.renderer.material.color = new Color(newColor,newColor,newColor);
-			yield return StartCoroutine(MyWaitFunction (0.05f));
-			newColor += 0.01f;
-		}
-		yield return StartCoroutine (MyWaitFunction (10.0f));
-		}
-	}*/
+		this.gameObject.renderer.material.color = newColor;
+		normColor = newColor;
+	}
 	
     IEnumerator MyWaitFunction (float delay) 
 	{

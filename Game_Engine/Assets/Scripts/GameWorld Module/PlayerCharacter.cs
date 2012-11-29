@@ -65,6 +65,7 @@ public class PlayerCharacter : MonoBehaviour
 			energyMagnitude = 0;
             if (Input.GetButton("Jump"))
             {
+				moveBonus = 0;
 				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
                 moveDirection.y = m_jumpSpeed;
@@ -72,7 +73,7 @@ public class PlayerCharacter : MonoBehaviour
             }
             else
 			{
-				if(moveBonus < 100)
+				if(moveBonus < m_maxBoost)
 					moveBonus++;
                 m_fallSpeed = 0;
 				firstJump = false;
@@ -155,6 +156,11 @@ public class PlayerCharacter : MonoBehaviour
 		yield return new WaitForSeconds(time);
 		shield = false;
 	}
+	
+	public void AddThrust()
+	{
+		m_maxBoost += 100;
+	}
 
     public void Damage(int damage)
     {
@@ -236,6 +242,8 @@ public class PlayerCharacter : MonoBehaviour
 	int moveBonus;
 	float defaultSpeed;
 	
+	[SerializeField]
+	private float m_maxBoost;
     [SerializeField]
     private float m_movementSpeed;
     [SerializeField]
