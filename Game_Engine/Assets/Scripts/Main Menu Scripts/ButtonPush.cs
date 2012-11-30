@@ -31,6 +31,7 @@ public class ButtonPush : MonoBehaviour
 		{
 			m_camera.SendMessage("RotateRight");
 			m_light.SendMessage("RotateRight");
+			//m_GUIBar.SendMessage("setTrue");
 			click = false;
 		}
 		else if(level == "Credits" && click)
@@ -53,4 +54,7 @@ public class ButtonPush : MonoBehaviour
 	
 	[SerializeField]
 	private GameObject m_light;
+	
+	//[SerializeField]
+	//private GameObject m_GUIBar;
 }
