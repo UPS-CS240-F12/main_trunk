@@ -69,10 +69,10 @@ public class TerrainGenerator : MonoBehaviour {
 		while(true)
 		{
 			yield return StartCoroutine(MyWaitFunction(destroyInterval));
-				StartCoroutine ("DestroyTile");
+				yield return StartCoroutine ("DestroyTile");
 			int temp = Random.Range (0,100);
 			if(temp < recoveryChance)
-				StartCoroutine ("RespawnTile");
+				yield return StartCoroutine ("RespawnTile");
 			
 				
 		}
@@ -195,8 +195,8 @@ public class TerrainGenerator : MonoBehaviour {
 	Color universalNormColor;
 	
 	private GameObject[,] gameTiles;
-	private List<Vector3> emptyLocations;
-	private List<Vector2> occupiedLocations;
+	private volatile List<Vector3> emptyLocations;
+	private volatile List<Vector2> occupiedLocations;
 	
 	[SerializeField]
 	public GameObject m_tileClone;
