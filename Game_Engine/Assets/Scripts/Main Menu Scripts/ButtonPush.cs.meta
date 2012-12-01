@@ -5,6 +5,6 @@ MonoImporter:
   defaultReferences:
   - m_camera: {instanceID: 0}
   - m_light: {instanceID: 0}
-  - m_GUIBar: {instanceID: 0}
+  - m_sound: {fileID: 8300000, guid: 8fdc2170a71bbe74f8b7f1f13db99ef3, type: 1}
   executionOrder: 0
   icon: {instanceID: 0}
