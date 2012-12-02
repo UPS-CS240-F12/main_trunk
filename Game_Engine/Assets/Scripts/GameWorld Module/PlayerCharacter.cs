@@ -65,6 +65,7 @@ public class PlayerCharacter : MonoBehaviour
 			energyMagnitude = 0;
             if (Input.GetButton("Jump"))
             {
+				audio.Play();
 				moveBonus = 0;
 				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
@@ -89,6 +90,7 @@ public class PlayerCharacter : MonoBehaviour
         else if(Input.GetButton("Jump") && firstJump && EnergyPoints > 0)
 		{
 			//Perform Jetpack
+			audio.Play ();
 			moveDirection.y = moveDirection.y + m_jumpSpeed;
 			m_fallSpeed = m_jumpSpeed;
 			RemoveEnergy((int)energyMagnitude);
@@ -138,6 +140,8 @@ public class PlayerCharacter : MonoBehaviour
 	
 	public void AddEnergy(int energy)
 	{
+		//audio.Play();
+		//sound added here will play when an item is picked up
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
             Application.LoadLevel("GameOverScene");

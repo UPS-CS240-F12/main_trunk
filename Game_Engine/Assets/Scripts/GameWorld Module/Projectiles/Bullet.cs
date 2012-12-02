@@ -5,12 +5,13 @@ public class Bullet : Projectile
 {
     protected override void OnProjectileCollided(Collider obj)
     {
-        obj.SendMessage("Damage", m_damage);
+        audio.Play ();
+		obj.SendMessage("Damage", m_damage);
     }
 
     public int Damage
     {
-        get { return m_damage; }
+        get { return m_damage;}
         set { m_damage = value; }
     }
 

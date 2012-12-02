@@ -11,6 +11,7 @@ public class Shield : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
+		audio.Play();
         player.SendMessage("AddShield", m_activeTime);
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }

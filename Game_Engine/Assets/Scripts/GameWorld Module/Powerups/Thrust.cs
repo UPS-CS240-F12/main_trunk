@@ -11,6 +11,7 @@ public class Thrust : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
+		audio.Play ();
         player.SendMessage("AddThrust");
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }
