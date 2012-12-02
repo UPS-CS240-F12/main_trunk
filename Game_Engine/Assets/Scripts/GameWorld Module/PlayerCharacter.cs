@@ -141,7 +141,7 @@ public class PlayerCharacter : MonoBehaviour
 	public void AddEnergy(int energy)
 	{
 		//audio.Play();
-		//sound added here will play when an item is picked up
+		//sound added here will play when a battery is picked up
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
             Application.LoadLevel("GameOverScene");
