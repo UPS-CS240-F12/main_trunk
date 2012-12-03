@@ -115,15 +115,6 @@ public class TileState : MonoBehaviour {
 		Destroy(this.gameObject);
 	}
 	
-	/* Temporary method for safe zones. */
-	void OnMouseDown()
-	{
-		remove = false;
-		StartCoroutine(RotateSequence(true, 18.0f));
-		normColor = new Color(0.2f,0.9f,0);
-		this.gameObject.renderer.material.color = normColor;
-	}
-	
 	void SetValues(Vector2 vals)
 	{
 		xVal = (int)vals.x;
@@ -150,10 +141,4 @@ public class TileState : MonoBehaviour {
             yield return null;
         }
     }
-	
-	[SerializeField]
-	float lowerRange;
-	[SerializeField]
-	float upperRange;
-	
 }

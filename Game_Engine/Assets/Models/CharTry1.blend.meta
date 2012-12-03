@@ -10,6 +10,7 @@ ModelImporter:
     4300010: Cylinder
     4300012: Sphere
     4300014: Cube
+    4300016: Robot
     7400000: Default Take //// CharTry1
   serializedVersion: 10
   materials:
@@ -62,6 +63,20 @@ ModelImporter:
       data:
         first: 4
         second: 821a0600
+    Armature_001:
+      data:
+        first: 1
+        second: b6860100
+      data:
+        first: 4
+        second: 961a0600
+    Armature_002:
+      data:
+        first: 1
+        second: a4860100
+      data:
+        first: 4
+        second: 841a0600
     Bone:
       data:
         first: 1
@@ -69,6 +84,13 @@ ModelImporter:
       data:
         first: 4
         second: 801a0600
+    Bone_0:
+      data:
+        first: 1
+        second: b4860100
+      data:
+        first: 4
+        second: 941a0600
     Bone_001:
       data:
         first: 1
@@ -83,86 +105,35 @@ ModelImporter:
       data:
         first: 4
         second: 861a0600
-    Bone_003:
+    Bone_1:
       data:
         first: 1
         second: ae860100
       data:
         first: 4
         second: 8e1a0600
-    Cube:
+    Bone_2:
       data:
         first: 1
-        second: b6860100
+        second: b2860100
       data:
         first: 4
-        second: 961a0600
-      data:
-        first: 23
-        second: 68182300
-      data:
-        first: 33
-        second: a85a3200
-    Cube_001:
-      data:
-        first: 1
-        second: ba860100
-      data:
-        first: 4
-        second: 9a1a0600
-      data:
-        first: 23
-        second: 6a182300
-      data:
-        first: 33
-        second: aa5a3200
-    Cube_002:
-      data:
-        first: 1
-        second: ac860100
-      data:
-        first: 4
-        second: 8c1a0600
-      data:
-        first: 23
-        second: 62182300
-      data:
-        first: 33
-        second: a25a3200
-    Cylinder:
-      data:
-        first: 1
-        second: a4860100
-      data:
-        first: 4
-        second: 841a0600
-      data:
-        first: 137
-        second: a00bd100
-    Cylinder_001:
+        second: 921a0600
+    Bone_3:
       data:
         first: 1
         second: b0860100
       data:
         first: 4
         second: 901a0600
-      data:
-        first: 137
-        second: a20bd100
-    Sphere:
+    Bone_4:
       data:
         first: 1
-        second: b4860100
+        second: ac860100
       data:
         first: 4
-        second: 941a0600
-      data:
-        first: 23
-        second: 66182300
-      data:
-        first: 33
-        second: a65a3200
-    Sphere_001:
+        second: 8c1a0600
+    Robot:
       data:
         first: 1
         second: aa860100
@@ -175,16 +146,3 @@ ModelImporter:
       data:
         first: 33
         second: a05a3200
-    Sphere_002:
-      data:
-        first: 1
-        second: b2860100
-      data:
-        first: 4
-        second: 921a0600
-      data:
-        first: 23
-        second: 64182300
-      data:
-        first: 33
-        second: a45a3200

@@ -59,6 +59,7 @@ public class NetworkInterface : MonoBehaviour
             yield return post;
             if (post.error == null)
             {
+				Debug.Log(post.text);
                 ParseJSON(new JSONObject(post.text));
             }
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
@@ -128,7 +129,7 @@ public class NetworkInterface : MonoBehaviour
         minionGroup.type = JSONObject.Type.OBJECT;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Minions"))
         {
-            /*Minion minionScript = obj.GetComponent<Minion>();
+            MinionObject minionScript = obj.GetComponent<MinionObject>();
             if (minionScript != null)
             {
                 JSONObject jsonTemp = new JSONObject();
@@ -136,7 +137,7 @@ public class NetworkInterface : MonoBehaviour
                 jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
                 jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
                 minionGroup.AddField(minionScript.ID, jsonTemp);
-            }*/
+            }
         }
         engine.AddField("minions", minionGroup);
 
@@ -190,7 +191,7 @@ public class NetworkInterface : MonoBehaviour
             }
         }
 
-        engine.AddField("gamerunning", true);
+        engine.AddField("gameRunning", true);
         engine.AddField("lastUpdated", (int)(Time.fixedTime * 1000));
         engine.AddField("timeElapsed", (int)(Time.realtimeSinceStartup * 1000));
 
@@ -266,9 +267,9 @@ public class NetworkInterface : MonoBehaviour
                             if (position.Key == true && rotation.Key == true)
                             {
                                 GameObject minionObj = UpdateObject("minion", position.Value, Quaternion.Euler(rotation.Value), m_minionClone);
-                                /*Minion minionScript = minionObj.GetComponent<Minion>();
+                                MinionObject minionScript = minionObj.GetComponent<MinionObject>();
                                 if (minionScript != null)
-                                    minionScript.ID = nextMinion.str;*/
+                                    minionScript.ID = nextMinion.str;
                             }
                         }
                     }
@@ -382,7 +383,7 @@ public class NetworkInterface : MonoBehaviour
     }
 
     [SerializeField]
-    private static string m_serverURL;
+    private static string m_serverURL = "http://puppetmaster.pugetsound.edu:1730/gameState.json";
 
     [SerializeField]
     private int m_pollRate;
