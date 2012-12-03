@@ -20,11 +20,21 @@ public class HUDBarObject : HUDObject
         }
 
         GUI.depth = DrawOrder;
-		int width = Mathf.Clamp(Orientation.width * m_currentValue / m_maxValue, 0, Orientation.width);
+
+        int width;
+        if (m_maxValue != 0)
+            width = Mathf.Clamp(Orientation.width * m_currentValue / m_maxValue, 0, Orientation.width);
+        else
+            width = 0;
+
         GUI.Box(new Rect(x, y, width, Orientation.height), new GUIContent(""), Style);
-        GUIStyle textStyle = new GUIStyle(Style);
-        textStyle.normal.background = null;
-        GUI.Label(new Rect(x, y, Orientation.width, Orientation.height), m_currentValue + " / " + m_maxValue, textStyle);
+
+        if (m_drawText == true)
+        {
+            GUIStyle textStyle = new GUIStyle(Style);
+            textStyle.normal.background = null;
+            GUI.Label(new Rect(x, y, Orientation.width, Orientation.height), m_currentValue + " / " + m_maxValue, textStyle);
+        }
     }
 
     public int MaxValue
@@ -38,9 +48,17 @@ public class HUDBarObject : HUDObject
         get { return m_currentValue; }
         set { m_currentValue = value; }
     }
+
+    public bool DrawText
+    {
+        get { return m_drawText; }
+        set { m_drawText = value; }
+    }
     
     [SerializeField]
     private int m_maxValue;
     [SerializeField]
     private int m_currentValue;
+    [SerializeField]
+    private bool m_drawText = true;
 }

@@ -7,14 +7,27 @@ public class PlayerCharacter : MonoBehaviour
 	// Use this for initialization
 	void Start()
     {
-        m_healthBar.CurrentValue = m_hitPoints;
-        m_healthBar.MaxValue = m_maxHitPoints;
-        m_energyBar.CurrentValue = m_energyPoints;
-        m_energyBar.MaxValue = m_maxEnergyPoints;
+        if (m_energyAndShieldOnly == true)
+        {
+            m_healthBar.CurrentValue = m_energyPoints;
+            m_healthBar.MaxValue = m_maxEnergyPoints;
+
+            Shield shieldScript = m_shieldPowerup.GetComponent<Shield>();
+            m_energyBar.DrawText = false;
+            m_energyBar.CurrentValue = 0;
+            m_energyBar.MaxValue = (int) (shieldScript.ActiveTime * 100);
+        }
+        else
+        {
+            m_healthBar.CurrentValue = m_hitPoints;
+            m_healthBar.MaxValue = m_maxHitPoints;
+            m_energyBar.CurrentValue = m_energyPoints;
+            m_energyBar.MaxValue = m_maxEnergyPoints;
+        }
+        //m_shield.renderer.enabled = false;
 		m_position = transform.position;
 		firstJump = false;
 		jumping = false;
-		shield = false;
 		energyMagnitude = 0.09f;
 		moveBonus = 1;
 		defaultSpeed = m_movementSpeed;
@@ -39,11 +52,11 @@ public class PlayerCharacter : MonoBehaviour
 		CharacterController controller = GetComponent<CharacterController>();
         // Rotate around y - axis
         /*
-        transform.Rotate(0, InputControls.GetRotation() * rotateSpeed, 0);
         InputControls.ClearRotation();
         */
 
-        Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        transform.Rotate(0, Input.GetAxis("Horizontal") * m_rotateSpeed, 0);
+        Vector3 moveDirection = new Vector3(0, 0, Input.GetAxis("Vertical"));
         moveDirection = transform.TransformDirection(moveDirection);
         moveDirection.Normalize();
 
@@ -126,13 +139,26 @@ public class PlayerCharacter : MonoBehaviour
 
     void LateUpdate()
     {
-        m_camera.transform.position = new Vector3(transform.position.x, transform.position.y + 400, transform.position.z - 400);
+        Vector3 eulerAngles = transform.rotation.eulerAngles;
+        m_camera.transform.position = new Vector3(transform.position.x - (400 * Mathf.Sin(Mathf.Deg2Rad * eulerAngles.y)), transform.position.y + 600, (transform.position.z) - (400 * Mathf.Cos(Mathf.Deg2Rad * eulerAngles.y)));
+        m_camera.transform.LookAt(transform.position);
+
+        //m_shield.transform.position = transform.position;
 		if(jumping)
 		{
 			Instantiate(m_jumpParticle, transform.position, Quaternion.identity);
 		}
-		if(shield)
-			Instantiate(m_shieldParticle, transform.position, Quaternion.identity);
+        if (m_shieldActive)
+        {
+            Instantiate(m_shieldParticle, transform.position, Quaternion.identity);
+            m_energyBar.CurrentValue -= (int)(Time.deltaTime * 100);
+            if (m_energyBar.CurrentValue < 0)
+            {
+                m_energyBar.CurrentValue = 0;
+                m_shieldActive = false;
+                //m_shield.renderer.enabled = false;
+            }
+        }
 	}
 	
 	public void AddEnergy(int energy)
@@ -146,23 +172,35 @@ public class PlayerCharacter : MonoBehaviour
 	{
 		EnergyPoints -= energy;
         if (EnergyPoints < 0)
+        {
             EnergyPoints = 0;
+            if (m_energyAndShieldOnly == true)
+                Application.LoadLevel("GameOverScene");
+        }
 	}
 	
-	public IEnumerator AddShield(float time)
+	public void AddShield()
 	{
-		shield = true;
-		yield return new WaitForSeconds(time);
-		shield = false;
+        m_shieldActive = true;
+        m_energyBar.CurrentValue = m_energyBar.MaxValue;
+        //m_shield.renderer.enabled = true;
 	}
 
     public void Damage(int damage)
     {
-		if(!shield)
+        if (m_shieldActive == false)
 		{
-      		HitPoints -= damage;
-        	if (HitPoints <= 0)
-				Application.LoadLevel("GameOverScene");
+            if (m_energyAndShieldOnly == true)
+                RemoveEnergy(damage);
+            else
+            {
+                HitPoints -= damage;
+                if (HitPoints <= 0)
+                {
+                    HitPoints = 0;
+                    Application.LoadLevel("GameOverScene");
+                }
+            }
 		}
     }
 
@@ -198,25 +236,49 @@ public class PlayerCharacter : MonoBehaviour
     public int HitPoints
     {
         get { return m_hitPoints; }
-        set { m_hitPoints = value; m_healthBar.CurrentValue = m_hitPoints; }
+        set
+        {
+            m_hitPoints = value;
+            if (m_energyAndShieldOnly == false)
+                m_healthBar.CurrentValue = m_hitPoints;
+        }
     }
 
     public int MaxHitPoints
     {
         get { return m_maxHitPoints; }
-        set { m_maxHitPoints = value; m_healthBar.MaxValue = m_maxHitPoints; }
+        set
+        {
+            m_maxHitPoints = value;
+            if (m_energyAndShieldOnly == false)
+                m_healthBar.MaxValue = m_maxHitPoints;
+        }
     }
 
     public int EnergyPoints
     {
         get { return m_energyPoints; }
-        set { m_energyPoints = value; m_energyBar.CurrentValue = m_energyPoints; }
+        set
+        {
+            m_energyPoints = value;
+            if (m_energyAndShieldOnly == true)
+                m_healthBar.CurrentValue = m_energyPoints;
+            else
+                m_energyBar.CurrentValue = m_energyPoints;
+        }
     }
 
     public int MaxEnergyPoints
     {
         get { return m_maxEnergyPoints; }
-        set { m_maxEnergyPoints = value; m_energyBar.MaxValue = m_maxEnergyPoints; }
+        set
+        {
+            m_maxEnergyPoints = value;
+            if (m_energyAndShieldOnly == true)
+                m_healthBar.MaxValue = m_maxEnergyPoints;
+            else
+                m_energyBar.MaxValue = m_maxEnergyPoints;
+        }
     }
 
     public float EnergyLossRate
@@ -231,7 +293,6 @@ public class PlayerCharacter : MonoBehaviour
 	
 	bool firstJump;
 	bool jumping;
-	bool shield;
 	float energyMagnitude;
 	int moveBonus;
 	float defaultSpeed;
@@ -261,6 +322,10 @@ public class PlayerCharacter : MonoBehaviour
     private int m_maxEnergyPoints;
     [SerializeField]
     private float m_energyLossRate = 1;
+    [SerializeField]
+    private bool m_shieldActive = false;
+    [SerializeField]
+    private bool m_energyAndShieldOnly = true;
 
     [SerializeField]
     private Vector3 m_position;
@@ -277,4 +342,10 @@ public class PlayerCharacter : MonoBehaviour
 	
 	[SerializeField]
 	private GameObject m_shieldParticle;
+
+    [SerializeField]
+    private GameObject m_shieldPowerup;
+
+    //[SerializeField]
+    //private GameObject m_shield;
 }

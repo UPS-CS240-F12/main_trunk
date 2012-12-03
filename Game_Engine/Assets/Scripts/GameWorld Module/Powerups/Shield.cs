@@ -11,12 +11,15 @@ public class Shield : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
-        player.SendMessage("AddShield", m_activeTime);
+        player.SendMessage("AddShield");
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }
 
-    [SerializeField]
-    private int m_energyGain;
+    public float ActiveTime
+    {
+        get { return m_activeTime; }
+        set { m_activeTime = value; }
+    }
 	
 	private GameObject m_pointKeeper;
 	

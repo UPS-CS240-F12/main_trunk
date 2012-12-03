@@ -1,4 +1,4 @@
-#define READABLE
+//#define READABLE
 
 using UnityEngine;
 using System.Collections;

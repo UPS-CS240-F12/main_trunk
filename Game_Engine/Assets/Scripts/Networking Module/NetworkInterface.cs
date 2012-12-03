@@ -6,6 +6,23 @@ using System;
 
 public class NetworkInterface : MonoBehaviour
 {
+    static public IEnumerator AddPhoneScore(string phoneID, int score)
+    {
+        // Try 5 times
+        for (uint i = 0; i < 5; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField(phoneID, score);
+            WWW post = new WWW(m_serverURL, form);
+            yield return post;
+            if (post.error == null)
+            {
+                // No error
+                break;
+            }
+        }
+    }
+
     void Start()
     {
         //StartCoroutine("PollData");
@@ -44,7 +61,9 @@ public class NetworkInterface : MonoBehaviour
             {
                 ParseJSON(new JSONObject(post.text));
             }
-            yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
+            float secWait = Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1);
+            Debug.Log(secWait);
+            yield return new WaitForSeconds(secWait);
         }
     }
 
@@ -107,6 +126,22 @@ public class NetworkInterface : MonoBehaviour
         }
         engine.AddField("fireballs", fireballGroup);
 
+        JSONObject minionGroup = new JSONObject();
+        minionGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Minions"))
+        {
+            /*Minion minionScript = obj.GetComponent<Minion>();
+            if (minionScript != null)
+            {
+                JSONObject jsonTemp = new JSONObject();
+                jsonTemp.type = JSONObject.Type.OBJECT;
+                jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+                jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
+                minionGroup.AddField(minionScript.ID, jsonTemp);
+            }*/
+        }
+        engine.AddField("minions", minionGroup);
+
         JSONObject eyeballGroup = new JSONObject();
         eyeballGroup.type = JSONObject.Type.OBJECT;
         foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Eyeballs"))
@@ -157,6 +192,10 @@ public class NetworkInterface : MonoBehaviour
             }
         }
 
+        engine.AddField("gamerunning", true);
+        engine.AddField("lastUpdated", (int)(Time.fixedTime * 1000));
+        engine.AddField("timeElapsed", (int)(Time.realtimeSinceStartup * 1000));
+
         return engine;
     }
 
@@ -198,7 +237,7 @@ public class NetworkInterface : MonoBehaviour
                 // Loop through requests
                 foreach (JSONObject nextRequest in requests.list)
                 {
-                    //      If requests is fireball creation
+                    // If request is fireball creation
                     if (nextRequest.str == "fireballs")
                     {
                         foreach (JSONObject nextFireball in nextRequest.list)
@@ -211,11 +250,31 @@ public class NetworkInterface : MonoBehaviour
                                 GameObject fireballObj = UpdateObject("fireball", position.Value, Quaternion.Euler(rotation.Value), m_fireballClone);
                                 Fireball fireballScript = fireballObj.GetComponent<Fireball>();
                                 if (fireballScript != null)
+                                {
                                     fireballScript.ID = nextFireball.str;
+                                    fireballScript.PhoneSpawnerID = phoneID;
+                                }
                             }
                         }
                     }
-                    //      Else if request is turret creation
+                    // If request is minion creation
+                    else if (nextRequest.str == "minions")
+                    {
+                        foreach (JSONObject nextMinion in nextRequest.list)
+                        {
+                            position = JSONUtils.ParseXYZTriplet(nextMinion[PositionString]);
+                            rotation = JSONUtils.ParseXYZTriplet(nextMinion[RotationString]);
+
+                            if (position.Key == true && rotation.Key == true)
+                            {
+                                GameObject minionObj = UpdateObject("minion", position.Value, Quaternion.Euler(rotation.Value), m_minionClone);
+                                /*Minion minionScript = minionObj.GetComponent<Minion>();
+                                if (minionScript != null)
+                                    minionScript.ID = nextMinion.str;*/
+                            }
+                        }
+                    }
+                    // Else if request is turret creation
                     else if (nextRequest.str == "objectPlacement")
                     {
                         string type;
@@ -325,7 +384,7 @@ public class NetworkInterface : MonoBehaviour
     }
 
     [SerializeField]
-    private string m_serverURL;
+    private static string m_serverURL;
 
     [SerializeField]
     private int m_pollRate;
@@ -338,6 +397,8 @@ public class NetworkInterface : MonoBehaviour
     private GameObject m_fireballClone;
     [SerializeField]
     private GameObject m_terrainFactory;
+    [SerializeField]
+    private GameObject m_minionClone;
 
     private const string EngineString = "engine";
     private const string PhonesString = "phones";

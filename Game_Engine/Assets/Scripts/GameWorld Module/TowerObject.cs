@@ -121,5 +121,5 @@ public class TowerObject : MonoBehaviour {
 	// [SerializeField]
 	private float m_minRange;
 
-    private string m_ownerID;
+    private string m_ownerID = null;
 }
