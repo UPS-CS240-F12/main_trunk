@@ -234,6 +234,9 @@ public class NetworkInterface : MonoBehaviour
     [SerializeField]
     private GameObject m_turretClone;
 
+    [SerializeField]
+    private GameObject m_minionClone;
+
     private const string TurretString = "turret";
     private const string IDString = "ID";
     private const string PositionString = "position";
