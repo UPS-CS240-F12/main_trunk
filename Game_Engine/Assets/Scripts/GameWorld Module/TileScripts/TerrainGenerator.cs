@@ -13,8 +13,6 @@ public class TerrainGenerator : MonoBehaviour {
 		flipping = false;
 		emptyLocations = new List<Vector3>();
 		occupiedLocations = new List<Vector2>();
-		xWidth = m_tileDimensions;
-		zWidth = m_tileDimensions;
 		respawnNum = 50;
 		StartCoroutine ("SetGameWorld");
 		//StartCoroutine("GenerateTiles");
@@ -28,19 +26,18 @@ public class TerrainGenerator : MonoBehaviour {
 	//Gets the values from PlayerPrefs to overwrite default difficulty values.
 	void SetGameWorld()
 	{
-		//int map = PlayerPrefs.GetInt("Map");
-		int map = 1; //Hard coded to only create the first map
+		int map = PlayerPrefs.GetInt("Map");
 		if(map == 1)
 		{
-			xWidth = 0.125f; // 10% of total size
+			xWidth = 0.125f;
 			zWidth = 0.125f;
 			m_tileClone = m_tileEasy;
 			flipNum = 0;
 		}
 		if(map == 2)
 		{
-			xWidth = 0.075f;
-			zWidth = 0.075f;
+			xWidth = 0.125f;
+			zWidth = 0.125f;
 			m_tileClone = m_tileHard;
 		}
 		/*if(map == 3)
@@ -95,6 +92,11 @@ public class TerrainGenerator : MonoBehaviour {
 				totalTiles++;
 			}
 		}
+		int map = PlayerPrefs.GetInt("Map");
+		if(map == 2)
+		{
+			StartCoroutine("RepeatChangeColor");
+		}
 	}
 	
 	List<Vector3> GetDeletedTiles()
@@ -143,11 +145,27 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 	}
 	
+	IEnumerator RepeatChangeColor()
+	{
+		yield return StartCoroutine("MyWaitFunction",2.0f); //Brace yourself.
+		while(true)
+		{
+			yield return StartCoroutine("MyWaitFunction",0.05f);
+			TileMessenger messenger = new TileMessenger();
+			StartCoroutine("GetRandomTile", messenger);
+			Vector2 ret = new Vector2(messenger.message.x, messenger.message.y); 
+			StartCoroutine("ChangeColor", ret);
+		}
+	}
+	
 	void ChangeColor(Vector2 coords)
 	{
 		int xVal = (int)coords.x;
 		int zVal = (int)coords.y;
-		gameTiles[xVal, zVal].SendMessage("ColorShift", Color.blue);
+		float r = Random.Range (0.0f,1.0f);
+		float g = Random.Range (0.0f,1.0f);
+		float b = Random.Range (0.0f,1.0f);
+		gameTiles[xVal, zVal].SendMessage("ColorShift", new Color(r,g,b));
 	}
 	
 	//Respawns a tile at a vacant location.
@@ -207,11 +225,7 @@ public class TerrainGenerator : MonoBehaviour {
 	public GameObject m_tileExtreme;
 	
 	[SerializeField]
-	private int m_xSize;
+	int m_xSize;
 	[SerializeField]
-	private int m_zSize;
-	[SerializeField]
-	private float m_tileDimensions;
-	
-
+	int m_zSize;
 }

@@ -60,8 +60,17 @@ public class MinionObject : MonoBehaviour {
         get { return player; }
         set { player = value; }
     }
+	
+	public string ID
+	{
+		get { return m_id; }
+		set {m_id = value; }
+	}
     
     private GameObject player;
+	
+	[SerializeField]
+	private string m_id = null;
 
     private bool isChasing;
     private float maxRange;

@@ -123,15 +123,16 @@ public class PlayerCharacter : MonoBehaviour
         {
             //transform.position = new Vector3(980, 100.0f, 980);
 			
-			TileMessenger messenger = new TileMessenger();
-			terrainFactory.SendMessage("GetRandomTile", messenger);
-			
-			transform.position = messenger.message + new Vector3(0, 110, 0);
-			
-            HitPoints -= 25;
-
-            if (HitPoints <= 0)
-                HitPoints = 0;
+			if(m_shieldActive)
+			{
+				TileMessenger messenger = new TileMessenger();
+				terrainFactory.SendMessage("GetRandomTile", messenger);
+				transform.position = messenger.message + new Vector3(0, 110, 0);
+			}
+			else
+			{
+				m_pointKeeper.SendMessage ("EndGame",false); // State character lost.
+			}
         }
 		//update stored position
 		m_position = transform.position;
@@ -165,7 +166,7 @@ public class PlayerCharacter : MonoBehaviour
 	{
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
-            Application.LoadLevel("GameOverScene");
+            m_pointKeeper.SendMessage ("EndGame",true); // Declare character won.
 	}
 	
 	public void RemoveEnergy(int energy)
@@ -175,7 +176,7 @@ public class PlayerCharacter : MonoBehaviour
         {
             EnergyPoints = 0;
             if (m_energyAndShieldOnly == true)
-                Application.LoadLevel("GameOverScene");
+                m_pointKeeper.SendMessage ("EndGame",false); // State character lost.
         }
 	}
 	
@@ -339,13 +340,11 @@ public class PlayerCharacter : MonoBehaviour
 	
 	[SerializeField]
 	private GameObject m_jumpParticle;
-	
 	[SerializeField]
 	private GameObject m_shieldParticle;
-
     [SerializeField]
     private GameObject m_shieldPowerup;
 
-    //[SerializeField]
-    //private GameObject m_shield;
+	[SerializeField]
+	private GameObject m_pointKeeper;
 }
