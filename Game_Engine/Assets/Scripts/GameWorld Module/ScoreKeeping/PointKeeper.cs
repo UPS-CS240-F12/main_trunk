@@ -43,9 +43,13 @@ public class PointKeeper : MonoBehaviour {
 		}
 	}
 	
-	void EndGame()
+	void EndGame(bool winBool)
 	{
-		Application.LoadLevel("EndGameScene");
+		GameObject preserveScore = Instantiate(m_preserveScore, new Vector3(0,0,0), transform.rotation) as GameObject;
+		preserveScore.SendMessage("WinStatus", winBool);
+		preserveScore.SendMessage("CumulateScore", points);
+		DontDestroyOnLoad(preserveScore);
+		Application.LoadLevel("GameOverScene");
 	}
 	
 	IEnumerator AddPoints(int newPoints)
@@ -68,4 +72,7 @@ public class PointKeeper : MonoBehaviour {
 	int energyNeeded;
 	[SerializeField]
 	int m_pointGainRate;
+	
+	[SerializeField]
+	GameObject m_preserveScore;
 }

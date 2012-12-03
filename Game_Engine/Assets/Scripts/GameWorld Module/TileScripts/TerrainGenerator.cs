@@ -37,15 +37,13 @@ public class TerrainGenerator : MonoBehaviour {
 			m_tileClone = m_tileEasy;
 			flipNum = 0;
 		}
-		/*if(map == 2)
+		if(map == 2)
 		{
 			xWidth = 0.075f;
 			zWidth = 0.075f;
 			m_tileClone = m_tileHard;
-			respawnNum = 45;
-			flipNum = 0;
 		}
-		if(map == 3)
+		/*if(map == 3)
 		{
 			xWidth = 0.05f;
 			zWidth = 0.05f;

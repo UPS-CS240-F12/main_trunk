@@ -144,7 +144,7 @@ public class PlayerCharacter : MonoBehaviour
 		//sound added here will play when a battery is picked up
 		EnergyPoints += energy;
         if (EnergyPoints > MaxEnergyPoints)
-            Application.LoadLevel("GameOverScene");
+            m_pointKeeper.SendMessage("EndGame", true); // Indicate the character has won.
 	}
 	
 	public void RemoveEnergy(int energy)
@@ -172,7 +172,7 @@ public class PlayerCharacter : MonoBehaviour
 		{
       		HitPoints -= damage;
         	if (HitPoints <= 0)
-				Application.LoadLevel("GameOverScene");
+				m_pointKeeper.SendMessage("EndGame", false); // Indicate the character has lost.
 		}
     }
 
@@ -245,6 +245,9 @@ public class PlayerCharacter : MonoBehaviour
 	float energyMagnitude;
 	int moveBonus;
 	float defaultSpeed;
+	
+	[SerializeField]
+	GameObject m_pointKeeper;
 	
 	[SerializeField]
 	private float m_maxBoost;
