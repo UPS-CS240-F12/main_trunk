@@ -16,6 +16,7 @@ public class ButtonPush : MonoBehaviour
 	
 	void OnMouseDown()
 	{
+		audio.Play ();
 		click = true;
 	}
 	
@@ -36,6 +37,7 @@ public class ButtonPush : MonoBehaviour
 		else if(level == "Credits" && click)
 		{
 			//Holder for moving to credits not loading game
+
 			m_camera.SendMessage("RotateLeft");
 			m_light.SendMessage("RotateLeft");
 			click = false;

@@ -61,9 +61,7 @@ public class NetworkInterface : MonoBehaviour
             {
                 ParseJSON(new JSONObject(post.text));
             }
-            float secWait = Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1);
-            Debug.Log(secWait);
-            yield return new WaitForSeconds(secWait);
+            yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
         }
     }
 

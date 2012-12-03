@@ -11,6 +11,7 @@ public class Battery : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
+		audio.Play ();
         player.SendMessage("AddEnergy", m_energyGain);
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }

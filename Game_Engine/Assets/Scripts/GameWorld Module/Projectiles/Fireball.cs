@@ -5,6 +5,7 @@ public class Fireball : Projectile
 {
     protected override void OnProjectileCollided(Collider obj)
     {
+        audio.Play ();
         obj.SendMessage("Damage", m_damage);
         if (m_phone != null)
             NetworkInterface.AddPhoneScore(m_phone, m_damage);

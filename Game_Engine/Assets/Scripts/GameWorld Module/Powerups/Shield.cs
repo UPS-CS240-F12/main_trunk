@@ -11,6 +11,7 @@ public class Shield : Powerup
 	
     protected override void OnPowerupReceived(Collider player)
     {
+        audio.Play();
         player.SendMessage("AddShield");
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
     }
@@ -20,7 +21,7 @@ public class Shield : Powerup
         get { return m_activeTime; }
         set { m_activeTime = value; }
     }
-	
+
 	private GameObject m_pointKeeper;
 	
 	[SerializeField]

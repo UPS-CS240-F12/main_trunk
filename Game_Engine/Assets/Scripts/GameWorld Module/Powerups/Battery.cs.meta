@@ -4,6 +4,7 @@ labels:
 - script
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - sound1: {fileID: 8300000, guid: 9642b029359ba8f4795aa1d0a5e59725, type: 1}
   executionOrder: 0
   icon: {instanceID: 0}
