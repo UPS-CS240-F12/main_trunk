@@ -22,6 +22,44 @@ public class NetworkInterface : MonoBehaviour
             }
         }
     }
+	
+	public static IEnumerator ClearBattery(string batteryId)
+	{
+		JSONObject obj = new JSONObject("{engine:{batteries:{" + batteryId + ":null}}");
+		yield return SendSimpleUpdate(obj);
+	}
+	
+	public static IEnumerator ClearEyeball(string eyeballId)
+	{
+		JSONObject obj = new JSONObject("{engine:{eyeballs:{" + eyeballId + ":null}}");
+		yield return SendSimpleUpdate(obj);
+	}
+	
+	public static IEnumerator ClearFireball(string fireballId)
+	{
+		JSONObject obj = new JSONObject("{engine:{eyeballs:{" + fireballId + ":null}}");
+		yield return SendSimpleUpdate(obj);
+	}
+	
+	public static IEnumerator ClearPhoneFireballRequest(string id, string fireballID)
+	{
+		JSONObject obj = new JSONObject("{phones:{" + id + ":{requests:{fireballs:{" + fireballID + ":null}}}}}");
+		yield return SendSimpleUpdate(obj);
+	}
+	
+	private static IEnumerator SendSimpleUpdate(JSONObject obj)
+	{
+		for (uint i = 0; i < 5; ++i)
+        {
+            WWW post = new WWW(m_serverURL, System.Text.Encoding.UTF8.GetBytes(obj.ToString()));
+            yield return post;
+            if (post.error == null)
+            {
+                // No error
+                break;
+            }
+        }
+	}
 
     void Start()
     {
@@ -253,6 +291,8 @@ public class NetworkInterface : MonoBehaviour
                                     fireballScript.ID = nextFireball.str;
                                     fireballScript.PhoneSpawnerID = phoneID;
                                 }
+								
+								ClearPhoneFireballRequest(phoneID, nextFireball.str);
                             }
                         }
                     }
