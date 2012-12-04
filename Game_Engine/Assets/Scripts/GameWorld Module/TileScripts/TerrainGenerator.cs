@@ -196,6 +196,16 @@ public class TerrainGenerator : MonoBehaviour {
         }
     }
 	
+	public int Rows
+	{
+		get { return xTiles; }
+	}
+	
+	public int Columns
+	{
+		get { return zTiles; }
+	}
+	
 	int totalTiles;
 	int index; // Location in the gameTiles list for the searched tile.
 	float xWidth;

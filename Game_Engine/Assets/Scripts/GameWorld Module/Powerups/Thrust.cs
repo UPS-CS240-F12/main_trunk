@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Thrust : Powerup
 {
-	protected virtual void Start()
+    protected override void Start()
 	{
 		base.Start();
 		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");

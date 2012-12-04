@@ -7,7 +7,7 @@ public class MobileCamera : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        StartCoroutine("RandomFireballShooter");
+        //StartCoroutine("RandomFireballShooter");
 	}
 	
 	// Update is called once per frame

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Battery : Powerup
 {
-	protected virtual void Start()
+	protected override void Start()
 	{
 		base.Start();
 		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");
@@ -14,8 +14,12 @@ public class Battery : Powerup
 		//audio.Play ();
         player.SendMessage("AddEnergy", m_energyGain);
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
-		NetworkInterface.ClearBattery(GetInstanceID().ToString());
     }
+	
+	void OnDestroy()
+	{
+		NetworkInterface.ClearBattery(GetInstanceID().ToString());
+	}
 
     public int EnergyGain
     {

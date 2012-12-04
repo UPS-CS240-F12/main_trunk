@@ -1,102 +1,53 @@
 using UnityEngine;
 using System.Collections;
+using Controller_Core.Client;
+using System.Diagnostics;
 
 public class InputControls
 {
-    public static void AccumulateRotation(float rotation)
+    public static float Rotation()
     {
-        s_rotation += rotation;
+        return Input.GetAxis("Horizontal") + (kinectController.TurningLeft ? -1.0f : 0.0f) + (kinectController.TurningRight ? 1.0f : 0.0f);
     }
 
-    public static float GetRotation()
+    public static float Movement()
     {
-        return s_rotation;
+        return Input.GetAxis("Vertical") + (kinectController.Moving ? 1.0f : 0.0f);
     }
 
-    public static void ClearRotation()
+    public static bool Jump()
     {
-        s_rotation = 0;
+        return Input.GetButton("Jump") || kinectController.Jumping;
     }
 
-    public static void AccumulateMovement(float movement)
+    public static bool Attack()
     {
-        s_movement += movement;
+        return false;
     }
 
-    public static float GetMovement()
+    public static bool Roll()
     {
-        return s_movement;
+        return Input.GetButton("Roll");
     }
 
-    public static void ClearMovement()
+    public static bool Shield()
     {
-        s_movement = 0;
+        return false;
     }
 
-    public static void Jump()
+    public static void Initialize()
     {
-        s_jumping = true;
+        if (kinectController == null)
+        {
+            // TODO: Spawn process for Kinect; wait for it to become responsive
+            //Process p = Process.Start(ViCharKinectProcessName);
+            //while (p.Responding == false)
+            //    yield return new WaitForSeconds(0.010f);
+            kinectController = new ViCharController();
+        }
     }
 
-    public static bool IsJumping()
-    {
-        return s_jumping;
-    }
+    public static ViCharController kinectController = null;
 
-    public static void ClearJump()
-    {
-        s_jumping = false;
-    }
-
-    public static void Roll()
-    {
-        s_rolling = true;
-    }
-
-    public static bool IsRolling()
-    {
-        return s_rolling;
-    }
-
-    public static void ClearRoll()
-    {
-        s_rolling = false;
-    }
-
-    public static void PrimaryAttack()
-    {
-        s_primaryAttacking = true;
-    }
-
-    public static bool IsPrimaryAttacking()
-    {
-        return s_primaryAttacking;
-    }
-
-    public static void ClearPrimaryAttack()
-    {
-        s_primaryAttacking = false;
-    }
-
-    public static void SecondaryAttack()
-    {
-        s_secondaryAttacking = true;
-    }
-
-    public static bool IsSecondaryAttacking()
-    {
-        return s_secondaryAttacking;
-    }
-
-    public static void ClearSecondaryAttacking()
-    {
-        s_secondaryAttacking = false;
-    }
-
-    private static bool s_jumping;
-    private static bool s_rolling;
-    private static bool s_primaryAttacking;
-    private static bool s_secondaryAttacking;
-    private static float s_rotation;
-    private static float s_movement;
+    private static string ViCharKinectProcessName = "foo.exe";
 }

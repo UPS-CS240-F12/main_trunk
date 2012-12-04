@@ -33,7 +33,11 @@ public class PlayerCharacter : MonoBehaviour
 		defaultSpeed = m_movementSpeed;
 		
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
-        StartCoroutine("EnergyLossRoutine");
+
+        if (m_energyLossRate > 0)
+            StartCoroutine("EnergyLossRoutine");
+
+        InputControls.Initialize();
 	}
 
     private IEnumerator EnergyLossRoutine()
@@ -54,13 +58,13 @@ public class PlayerCharacter : MonoBehaviour
         /*
         InputControls.ClearRotation();
         */
-
-        transform.Rotate(0, Input.GetAxis("Horizontal") * m_rotateSpeed, 0);
-        Vector3 moveDirection = new Vector3(0, 0, Input.GetAxis("Vertical"));
+		
+        transform.Rotate(0, InputControls.Rotation() * m_rotateSpeed, 0);
+        Vector3 moveDirection = new Vector3(0, 0, InputControls.Movement());
         moveDirection = transform.TransformDirection(moveDirection);
         moveDirection.Normalize();
 
-        if (Input.GetButton("Roll"))
+        if (InputControls.Roll())
             moveDirection *= m_rollSpeed;
         else
 		{
@@ -76,7 +80,7 @@ public class PlayerCharacter : MonoBehaviour
         {
 			
 			energyMagnitude = 0;
-            if (Input.GetButton("Jump"))
+            if (InputControls.Jump())
             {
 				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
@@ -98,7 +102,7 @@ public class PlayerCharacter : MonoBehaviour
             }
             */
         }
-        else if(Input.GetButton("Jump") && firstJump && EnergyPoints > 0)
+        else if(InputControls.Jump() && firstJump && EnergyPoints > 0)
 		{
 			//Perform Jetpack
 			moveDirection.y = moveDirection.y + m_jumpSpeed;
@@ -136,6 +140,19 @@ public class PlayerCharacter : MonoBehaviour
         }
 		//update stored position
 		m_position = transform.position;
+
+        if (InputControls.Shield())
+        {
+            if (m_shieldActive == false && EnergyPoints > m_shieldActivationCost)
+            {
+                AddShield();
+                RemoveEnergy(m_shieldActivationCost);
+            }
+        }
+
+        if (InputControls.Attack())
+        {
+        }
 	}
 
     void LateUpdate()
@@ -325,6 +342,8 @@ public class PlayerCharacter : MonoBehaviour
     private float m_energyLossRate = 1;
     [SerializeField]
     private bool m_shieldActive = false;
+    [SerializeField]
+    private int m_shieldActivationCost;
     [SerializeField]
     private bool m_energyAndShieldOnly = true;
 

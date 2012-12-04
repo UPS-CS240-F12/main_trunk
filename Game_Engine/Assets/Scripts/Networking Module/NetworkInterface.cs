@@ -6,7 +6,7 @@ using System;
 
 public class NetworkInterface : MonoBehaviour
 {
-    static public IEnumerator AddPhoneScore(string phoneID, int score)
+    public static IEnumerator AddPhoneScore(string phoneID, int score)
     {
         // Try 5 times
         for (uint i = 0; i < 5; ++i)
@@ -22,33 +22,58 @@ public class NetworkInterface : MonoBehaviour
             }
         }
     }
-	
-	public static IEnumerator ClearBattery(string batteryId)
+
+    public static void ClearBattery(string batteryId)
 	{
-		JSONObject obj = new JSONObject("{engine:{batteries:{" + batteryId + ":null}}");
-		yield return SendSimpleUpdate(obj);
+		JSONObject obj = new JSONObject("{\"engine\":{\"batteries\":{\"" + batteryId + "\":null}}}");
+        SendSimpleUpdate(obj);
 	}
-	
-	public static IEnumerator ClearEyeball(string eyeballId)
+
+    public static void ClearBullet(string id)
 	{
-		JSONObject obj = new JSONObject("{engine:{eyeballs:{" + eyeballId + ":null}}");
-		yield return SendSimpleUpdate(obj);
+		JSONObject obj = new JSONObject("{\"engine\":{\"turretBullets\":{\"" + id + "\":null}}}");
+        SendSimpleUpdate(obj);
 	}
-	
-	public static IEnumerator ClearFireball(string fireballId)
+
+    public static void ClearEyeball(string eyeballId)
 	{
-		JSONObject obj = new JSONObject("{engine:{eyeballs:{" + fireballId + ":null}}");
-		yield return SendSimpleUpdate(obj);
+		JSONObject obj = new JSONObject("{\"engine\":{\"eyeballs\":{\"" + eyeballId + "\":null}}}");
+        SendSimpleUpdate(obj);
 	}
-	
-	public static IEnumerator ClearPhoneFireballRequest(string id, string fireballID)
+
+    public static void ClearFireball(string fireballId)
 	{
-		JSONObject obj = new JSONObject("{phones:{" + id + ":{requests:{fireballs:{" + fireballID + ":null}}}}}");
-		yield return SendSimpleUpdate(obj);
+		JSONObject obj = new JSONObject("{\"engine\":{\"fireballs\":{\"" + fireballId + "\":null}}}");
+        SendSimpleUpdate(obj);
 	}
-	
-	private static IEnumerator SendSimpleUpdate(JSONObject obj)
+
+    public static void ClearMinion(string minionId)
 	{
+		JSONObject obj = new JSONObject("{\"engine\":{\"minions\":{\"" + minionId + "\":null}}}");
+        SendSimpleUpdate(obj);
+	}
+
+    public static void ClearTurret(string id)
+	{
+		JSONObject obj = new JSONObject("{\"engine\":{\"turrets\":{\"" + id + "\":null}}}");
+        SendSimpleUpdate(obj);
+	}
+
+    public static void ClearPhoneFireballRequest(string id, string fireballID)
+	{
+		JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"fireballs\":{\"" + fireballID + "\":null}}}}}");
+        SendSimpleUpdate(obj);
+	}
+
+    public static void ClearPhoneMinionRequest(string id, string minionID)
+	{
+		JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"minions\":{\"" + minionID + "\":null}}}}}");
+		SendSimpleUpdate(obj);
+	}
+
+    private static IEnumerator SendSimpleUpdate(JSONObject obj)
+	{
+		//Debug.Log ("Sending Update: " + obj.ToString());
 		for (uint i = 0; i < 5; ++i)
         {
             WWW post = new WWW(m_serverURL, System.Text.Encoding.UTF8.GetBytes(obj.ToString()));
@@ -77,7 +102,7 @@ public class NetworkInterface : MonoBehaviour
             yield return get;
 			if (get.error == null)
 			{
-	            Debug.Log(get.text);
+	            //Debug.Log(get.text);
                 ParseJSON(new JSONObject(get.text));
 			}
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
@@ -97,7 +122,7 @@ public class NetworkInterface : MonoBehaviour
             yield return post;
             if (post.error == null)
             {
-				Debug.Log(post.text);
+				//Debug.Log(post.text);
                 ParseJSON(new JSONObject(post.text));
             }
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
@@ -219,13 +244,17 @@ public class NetworkInterface : MonoBehaviour
             {
                 JSONObject jsonTemp = new JSONObject();
                 jsonTemp.type = JSONObject.Type.OBJECT;
-                jsonTemp.AddField("rows", 1);
-                jsonTemp.AddField("columns", 1);
-                JSONObject delTiles = new JSONObject();
-                delTiles.type = JSONObject.Type.ARRAY;
-                jsonTemp.AddField("deletedTiles", delTiles);
+				TerrainGenerator terrainData = m_terrainFactory.GetComponent<TerrainGenerator>();
+				if (terrainData != null)
+				{
+	                jsonTemp.AddField("rows", terrainData.Rows);
+	                jsonTemp.AddField("columns", terrainData.Columns);
+	                JSONObject delTiles = new JSONObject();
+	                delTiles.type = JSONObject.Type.ARRAY;
+	                jsonTemp.AddField("deletedTiles", delTiles);
 
-                engine.AddField("platforms", jsonTemp);
+                	engine.AddField("platforms", jsonTemp);
+				}
             }
         }
 
@@ -248,6 +277,9 @@ public class NetworkInterface : MonoBehaviour
 
         GameObject[] turrets = GameObject.FindGameObjectsWithTag("Towers");
         bool[] existingTurrets = new bool[turrets.Length]; // Initializes as false
+		
+		GameObject[] eyeballs = GameObject.FindGameObjectsWithTag("Eyeballs");
+		bool[] existingPhones = new bool[eyeballs.Length];
 
         for (int i = 0; i < phonesTag.keys.Count; ++i)
         {
@@ -256,74 +288,101 @@ public class NetworkInterface : MonoBehaviour
                 continue;
 
             string phoneID = phonesTag.keys[i].ToString();
+			
+			for (int j = 0; j < eyeballs.Length; ++j)
+			{
+				MobileCamera eyeScript = eyeballs[j].GetComponent<MobileCamera>();
+				if (eyeScript != null)
+				{
+					if (eyeScript.DeviceID == phoneID)
+					{
+						existingPhones[j] = true;
+						break;
+					}
+				}
+			}
 
             KeyValuePair<bool, Vector3> position = JSONUtils.ParseXYZTriplet(phone[PositionString]);
             KeyValuePair<bool, Vector3> rotation = JSONUtils.ParseXYZTriplet(phone[RotationString]);
 
             if (position.Key == true && rotation.Key == true)
             {
-                GameObject eyeObj = UpdateObject("eyeball" + phoneID, position.Value, Quaternion.Euler(rotation.Value), m_eyeballClone);
-                MobileCamera eyeScript = eyeObj.GetComponent<MobileCamera>();
+                GameObject eyeObj = UpdateObject("eyeball" + phoneID, position.Value, Quaternion.Euler(rotation.Value), m_eyeballClone);				
+				MobileCamera eyeScript = eyeObj.GetComponent<MobileCamera>();
                 if (eyeScript != null)
                     eyeScript.DeviceID = phoneID;
             }
 
             JSONObject requests = phone[RequestsString];
             if (requests != null)
-            {
-                // Loop through requests
-                foreach (JSONObject nextRequest in requests.list)
+            {	
                 {
+					JSONObject nextRequest = requests["fireballs"];
                     // If request is fireball creation
-                    if (nextRequest.str == "fireballs")
+                    if (nextRequest != null)
                     {
-                        foreach (JSONObject nextFireball in nextRequest.list)
+                        foreach (string nextID in nextRequest.keys)
                         {
+							JSONObject nextFireball = nextRequest[nextID];
                             position = JSONUtils.ParseXYZTriplet(nextFireball[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextFireball[RotationString]);
 
                             if (position.Key == true && rotation.Key == true)
                             {
-                                GameObject fireballObj = UpdateObject("fireball", position.Value, Quaternion.Euler(rotation.Value), m_fireballClone);
+                                GameObject fireballObj = UpdateObject("fireball" + nextID, position.Value, Quaternion.Euler(rotation.Value), m_fireballClone);
                                 Fireball fireballScript = fireballObj.GetComponent<Fireball>();
                                 if (fireballScript != null)
                                 {
-                                    fireballScript.ID = nextFireball.str;
+                                    fireballScript.ID = nextID;
                                     fireballScript.PhoneSpawnerID = phoneID;
                                 }
-								
-								ClearPhoneFireballRequest(phoneID, nextFireball.str);
                             }
+							
+							ClearPhoneFireballRequest(phoneID, nextID);
                         }
                     }
+				}
                     // If request is minion creation
-                    else if (nextRequest.str == "minions")
+                {
+					JSONObject nextRequest = requests["minions"];
+					if (nextRequest != null)
                     {
-                        foreach (JSONObject nextMinion in nextRequest.list)
+                        foreach (string nextID in nextRequest.keys)
                         {
+							JSONObject nextMinion = nextRequest[nextID];
+							
                             position = JSONUtils.ParseXYZTriplet(nextMinion[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextMinion[RotationString]);
 
                             if (position.Key == true && rotation.Key == true)
                             {
-                                GameObject minionObj = UpdateObject("minion", position.Value, Quaternion.Euler(rotation.Value), m_minionClone);
+                                GameObject minionObj = UpdateObject("minion" + nextID, position.Value, Quaternion.Euler(rotation.Value), m_minionClone);
                                 MinionObject minionScript = minionObj.GetComponent<MinionObject>();
                                 if (minionScript != null)
-                                    minionScript.ID = nextMinion.str;
+								{
+                                    minionScript.ID = nextID;
+									minionScript.PhoneOwner = phoneID;
+								}
                             }
+								
+							ClearPhoneMinionRequest(phoneID, nextID);
                         }
                     }
+				}
                     // Else if request is turret creation
-                    else if (nextRequest.str == "objectPlacement")
+                {
+					JSONObject nextRequest = requests["objectPlacement"];
+					if (nextRequest != null)
                     {
                         string type;
-                        foreach (JSONObject nextObj in nextRequest.list)
+                        foreach (string nextID in nextRequest.keys)
                         {
+							JSONObject nextObj = nextRequest[nextID];
                             position = JSONUtils.ParseXYZTriplet(nextObj[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextObj[RotationString]);
                             type = nextObj["type"].str;
-
-                            string jsonID = nextObj.str;
+							
+                            string jsonID = nextID;
                             if (jsonID == null)
                                 continue;
 
@@ -357,11 +416,29 @@ public class NetworkInterface : MonoBehaviour
                 }
             }
         }
+		
+		for (int i = 0; i < existingPhones.Length; ++i)
+		{
+			if (existingPhones[i] == false)
+			{
+				MobileCamera script = eyeballs[i].GetComponent<MobileCamera>();
+				if (script != null)
+					ClearEyeball(script.DeviceID);
+				
+				Destroy(eyeballs[i]);
+			}
+		}
 
         for (int i = 0; i < existingTurrets.Length; ++i)
         {
             if (existingTurrets[i] == false)
             {
+				TowerObject script = turrets[i].GetComponent<TowerObject>();
+				if (script != null)
+				{
+					ClearTurret(script.ID);
+				}
+				
                 Destroy(turrets[i]);
             }
         }
@@ -380,6 +457,10 @@ public class NetworkInterface : MonoBehaviour
                     {
                         case "none":
                             break;
+						case "robotBuff":
+							break;
+						case "eyeballBuff":
+							break;
                         default:
                             break;
                     }
@@ -438,7 +519,7 @@ public class NetworkInterface : MonoBehaviour
     private GameObject m_terrainFactory;
     [SerializeField]
     private GameObject m_minionClone;
-
+	
     private const string EngineString = "engine";
     private const string PhonesString = "phones";
     private const string TurretString = "turret";

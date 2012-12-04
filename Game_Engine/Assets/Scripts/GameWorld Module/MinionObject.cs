@@ -38,6 +38,8 @@ public class MinionObject : MonoBehaviour {
 
     void attackPlayer(){
         player.GetComponent<PlayerCharacter>().Damage(1);
+		if (m_owner != null)
+			NetworkInterface.AddPhoneScore(m_owner, 1);
     }
 
     bool touchingPlayer(Vector3 playerPosition){
@@ -55,11 +57,22 @@ public class MinionObject : MonoBehaviour {
         }
         return false;
     }
+	
+	void OnDestroy()
+	{	
+		NetworkInterface.ClearMinion(m_id);
+	}
 
     public GameObject Player{
         get { return player; }
         set { player = value; }
     }
+	
+	public string PhoneOwner
+	{
+		get { return m_owner; }
+		set { m_owner = value; }
+	}
 	
 	public string ID
 	{
@@ -71,6 +84,8 @@ public class MinionObject : MonoBehaviour {
 	
 	[SerializeField]
 	private string m_id = null;
+	[SerializeField]
+	private string m_owner = null;
 
     private bool isChasing;
     private float maxRange;

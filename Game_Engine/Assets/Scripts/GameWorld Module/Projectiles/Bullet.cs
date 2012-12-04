@@ -17,6 +17,11 @@ public class Bullet : Projectile
             }
         }
     }
+	
+	void OnDestroy()
+	{
+		NetworkInterface.ClearBullet(GetInstanceID().ToString());
+	}
 
     public int Damage
     {
