@@ -14,6 +14,7 @@ public class Battery : Powerup
 		//audio.Play ();
         player.SendMessage("AddEnergy", m_energyGain);
 		m_pointKeeper.SendMessage("AddPoints", m_pointValue);
+		NetworkInterface.ClearBattery(GetInstanceID().ToString());
     }
 
     public int EnergyGain

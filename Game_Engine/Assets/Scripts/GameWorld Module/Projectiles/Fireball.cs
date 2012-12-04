@@ -9,6 +9,7 @@ public class Fireball : Projectile
         obj.SendMessage("Damage", m_damage);
         if (m_phone != null)
             NetworkInterface.AddPhoneScore(m_phone, m_damage);
+		NetworkInterface.ClearFireball(m_ID);
     }
 
     public int Damage
