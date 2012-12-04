@@ -153,7 +153,7 @@ public class TerrainGenerator : MonoBehaviour {
 			yield return StartCoroutine("MyWaitFunction",0.05f);
 			TileMessenger messenger = new TileMessenger();
 			StartCoroutine("GetRandomTile", messenger);
-			Vector2 ret = new Vector2(messenger.message.x, messenger.message.y); 
+			Vector2 ret = new Vector2(messenger.message.x, messenger.message.z); 
 			StartCoroutine("ChangeColor", ret);
 		}
 	}

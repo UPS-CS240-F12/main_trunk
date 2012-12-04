@@ -89,7 +89,7 @@ public class PlayerCharacter : MonoBehaviour
             }
             else
 			{
-				if(moveBonus < 100)
+				if(moveBonus < m_bonusSpeed)
 					moveBonus++;
                 m_fallSpeed = 0;
 				firstJump = false;
@@ -202,6 +202,11 @@ public class PlayerCharacter : MonoBehaviour
         m_shieldActive = true;
         m_energyBar.CurrentValue = m_energyBar.MaxValue;
         //m_shield.renderer.enabled = true;
+	}
+	
+	public void AddThrust()
+	{
+		m_bonusSpeed += 100;
 	}
 
     public void Damage(int damage)
@@ -323,6 +328,8 @@ public class PlayerCharacter : MonoBehaviour
     private float m_jumpSpeed;
     [SerializeField]
     private float m_rollSpeed;
+	[SerializeField]
+	private int m_bonusSpeed;
 
     [SerializeField]
     private float m_gravity;

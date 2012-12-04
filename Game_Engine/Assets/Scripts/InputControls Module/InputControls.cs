@@ -12,6 +12,7 @@ public class InputControls
 
     public static float Movement()
     {
+		UnityEngine.Debug.Log(kinectController.Moving);
         return Input.GetAxis("Vertical") + (kinectController.Moving ? 1.0f : 0.0f);
     }
 
@@ -39,15 +40,11 @@ public class InputControls
     {
         if (kinectController == null)
         {
-            // TODO: Spawn process for Kinect; wait for it to become responsive
-            //Process p = Process.Start(ViCharKinectProcessName);
-            //while (p.Responding == false)
-            //    yield return new WaitForSeconds(0.010f);
+            Process p = Process.Start(ViCharKinectProcessName);
             kinectController = new ViCharController();
         }
     }
 
     public static ViCharController kinectController = null;
-
-    private static string ViCharKinectProcessName = "foo.exe";
+    private static string ViCharKinectProcessName = Application.dataPath + "/../Kinect/ViCharController.exe";
 }
