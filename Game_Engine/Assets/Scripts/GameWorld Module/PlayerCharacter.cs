@@ -82,6 +82,7 @@ public class PlayerCharacter : MonoBehaviour
 			energyMagnitude = 0;
             if (InputControls.Jump())
             {
+				audio.Play ();
 				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
                 moveDirection.y = m_jumpSpeed;
@@ -104,6 +105,7 @@ public class PlayerCharacter : MonoBehaviour
         }
         else if(InputControls.Jump() && firstJump && EnergyPoints > 0)
 		{
+			//audio.Play ();
 			//Perform Jetpack
 			moveDirection.y = moveDirection.y + m_jumpSpeed;
 			m_fallSpeed = m_jumpSpeed;

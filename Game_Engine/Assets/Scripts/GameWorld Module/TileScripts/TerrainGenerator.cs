@@ -147,13 +147,17 @@ public class TerrainGenerator : MonoBehaviour {
 	
 	IEnumerator RepeatChangeColor()
 	{
-		yield return StartCoroutine("MyWaitFunction",2.0f); //Brace yourself.
+		yield return StartCoroutine("MyWaitFunction",5.0f); //Brace yourself.
 		while(true)
 		{
-			yield return StartCoroutine("MyWaitFunction",0.05f);
+			yield return StartCoroutine("MyWaitFunction",0.02f);
+			int index = Random.Range (0,occupiedLocations.Count-1);
+			int xVal = (int)occupiedLocations[index].x;
+			int zVal = (int)occupiedLocations[index].y;
 			TileMessenger messenger = new TileMessenger();
-			StartCoroutine("GetRandomTile", messenger);
-			Vector2 ret = new Vector2(messenger.message.x, messenger.message.z); 
+			gameTiles[xVal, zVal].SendMessage("SendLocation", messenger);
+			Vector2 ret = new Vector2(messenger.message.x, messenger.message.z);
+			Debug.Log(ret);
 			StartCoroutine("ChangeColor", ret);
 		}
 	}
@@ -165,26 +169,29 @@ public class TerrainGenerator : MonoBehaviour {
 		float r = Random.Range (0.0f,1.0f);
 		float g = Random.Range (0.0f,1.0f);
 		float b = Random.Range (0.0f,1.0f);
-		gameTiles[xVal, zVal].SendMessage("ColorShift", new Color(r,g,b));
+		gameTiles[xVal + 4, zVal + 4].SendMessage("ColorShift", new Color(r,g,b));
 	}
 	
 	//Respawns a tile at a vacant location.
 	void RespawnTile()
 	{
-		Vector3 newLocation = emptyLocations[0];
-		emptyLocations.RemoveAt(0);
-		Vector3 tempLocation = newLocation;
-		tempLocation.Scale (new Vector3(xWidth, 1, zWidth));
-		GameObject tile = Instantiate(m_tileClone, tempLocation, transform.rotation) as GameObject;
-		tile.transform.localScale = new Vector3(xWidth, 30, zWidth);
-		tile.transform.position -= new Vector3(0,10,0); // Temporary fix to respawn height error.
-		tile.name = "tile x" + newLocation.x + " z" + newLocation.z;
-		//tile.SendMessage("CommandRotate", 6);
-		//tile.SendMessage("RespawnMovement", 6);
-		//Debug.Log ("Tile Respawning");
-		gameTiles[(int)newLocation.x + 4, (int)newLocation.z + 4] = tile;
-		occupiedLocations.Add(new Vector2(newLocation.x + 4, newLocation.z + 4));
-		totalTiles++;
+		if(emptyLocations.Count >= 5)
+		{
+			Vector3 newLocation = emptyLocations[0];
+			emptyLocations.RemoveAt(0);
+			Vector3 tempLocation = newLocation;
+			tempLocation.Scale (new Vector3(xWidth, 1, zWidth));
+			GameObject tile = Instantiate(m_tileClone, tempLocation, transform.rotation) as GameObject;
+			tile.transform.localScale = new Vector3(xWidth, 30, zWidth);
+			tile.transform.position -= new Vector3(0,10,0); // Temporary fix to respawn height error.
+			tile.name = "tile x" + newLocation.x + " z" + newLocation.z;
+			//tile.SendMessage("CommandRotate", 6);
+			//tile.SendMessage("RespawnMovement", 6);
+			//Debug.Log ("Tile Respawning");
+			gameTiles[(int)newLocation.x + 4, (int)newLocation.z + 4] = tile;
+			occupiedLocations.Add(new Vector2(newLocation.x + 4, newLocation.z + 4));
+			totalTiles++;
+		}
 	}
 	
 	IEnumerator MyWaitFunction (float delay) 
