@@ -3,15 +3,14 @@ using System.Collections;
 
 public class OptionsManager : MonoBehaviour {
 
-	// Use this for initialization
 	void Start () 
 	{
 		StartCoroutine("SetDifficulty", mapSetting);
 	}
 	
 	/*
-	 * Determine the game difficulty
-	 * @param difficulty Int value; 1 = easy, 2 = hard, 3 = extreme
+	 * Determines which map the game will be played on.
+	 * Map refers to the map number to play on. 1 = default, 2 = other.
 	 */
 	void SetDifficulty(int map) 
 	{
@@ -20,5 +19,5 @@ public class OptionsManager : MonoBehaviour {
 	}
 	
 	[SerializeField]
-	int mapSetting; // An integer between 1 and 3 corresponding to gameboards.
+	int mapSetting; // Should be an integer value, 1 or 2.
 }

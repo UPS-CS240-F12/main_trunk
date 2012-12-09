@@ -205,7 +205,7 @@ public class PlayerCharacter : MonoBehaviour
         //m_shield.renderer.enabled = true;
 	}
 	
-	public void addThrust()
+	public void AddThrust()
 	{
 		m_thrust += 100;
 	}

@@ -2,48 +2,28 @@ using UnityEngine;
 using System.Collections; 
 
 public class TileState : MonoBehaviour { 
-    bool rotating = false;
-	bool remove = true;
-	//float initialMagnitude;
-	Color normColor = Color.white;
-	float life;
-	GameObject terrainFactory;
-	int xVal;
-	int zVal;
 	
+	/*
+	* Initiated once the game is ready, at which point we will find the TerrainFactory.
+	*/
 	void Awake()
 	{
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
-		/*TileMessenger colorMessage = new TileMessenger();
-		terrainFactory.SendMessage ("ReturnColor", colorMessage);
-		Vector3 temp = colorMessage.message;
-		this.gameObject.renderer.material.color = new Color (temp.x, temp.y, temp.z);*/
-	}
-		
-	void Start () 
-	{
-    }
-	
-	void Update()
-	{
 	}
 	
+	/*
+	* Allows for hte tile to be controlled to rotate from outside sources. Magnitude refers
+	* to the speed at which it will rotate, with higher magnitudes being faster.
+	*/
 	void CommandRotate(float magnitude)
 	{
-		this.gameObject.renderer.material.color = Color.red;
 		StartCoroutine(RotateSequence(true, magnitude));
 	}
 	
-	IEnumerator RespawnMovement()
-	{
-		float moveDistance = -25.0f;
-		for(int i = 0; i < 20; i++)
-		{
-			transform.position += new Vector3(0.0f,moveDistance,0.0f);
-			yield return StartCoroutine(MyWaitFunction (0.05f));
-		}
-	}
-	
+	/*
+	* Rotates the tile. If circle is true, it will complete 360 degrees. If not it will rotate
+	* until the tile is deleted. The magnitude refers to the speed of rotation
+	*/
 	public IEnumerator RotateSequence(bool circle, float magnitude)
 	{
 		rotating = true;
@@ -72,6 +52,9 @@ public class TileState : MonoBehaviour {
 		this.gameObject.renderer.material.color = normColor;
 	}
 	
+	/*
+	* Moves the tile downwards before it despawns.
+	*/
 	IEnumerator FallSequence()
 	{
 		
@@ -84,11 +67,15 @@ public class TileState : MonoBehaviour {
 		}
 	}
 	
+	/*
+	* Procedure for deleting the tile. Begins with color changing, then commands to fall and delete.
+	*/
 	IEnumerator DeleteTile()
 	{
 		this.gameObject.renderer.material.color = Color.yellow;
 		normColor = Color.yellow;
        	yield return StartCoroutine(MyWaitFunction (1.0f));
+		// Flashes between black and red to notify the player that the tile is falling.
 		int counter = 40;
 		bool flag = false;
 		float shade = 1.0f;
@@ -111,28 +98,44 @@ public class TileState : MonoBehaviour {
 		StartCoroutine(FallSequence());
 		//Begin rotation at random, not 360 degree flip.
 		StartCoroutine(RotateSequence(false, 1.0f));
+		// Create a message to remove this tile to remove it from the mobile phones' view.
+		TileMessenger messenger = new TileMessenger();
+		messenger.message = new Vector3(xVal, 0, zVal);
+		terrainFactory.SendMessage("RemoveFromList", messenger);
 		yield return StartCoroutine(MyWaitFunction (5.0f));
 		Destroy(this.gameObject);
 	}
 	
+	/*
+	* Sets the tile's coordinate values.
+	*/
 	void SetValues(Vector2 vals)
 	{
 		xVal = (int)vals.x;
 		zVal = (int)vals.y;
 	}
 	
+	/*
+	* Takes the given TileMessenger and sets the message as the tile's location.
+	*/
 	void SendLocation(TileMessenger messenger)
 	{
 		Vector3 ret = new Vector3(xVal,0,zVal);
 		messenger.message = ret;
 	}
 	
+	/*
+	* Changes the default color of the tile.
+	*/
 	void ColorShift(Color newColor)
 	{
 		this.gameObject.renderer.material.color = newColor;
 		normColor = newColor;
 	}
 	
+	/* 
+	* Wait function.
+	*/
     IEnumerator MyWaitFunction (float delay) 
 	{
         float timer = Time.time + delay;
@@ -141,4 +144,12 @@ public class TileState : MonoBehaviour {
             yield return null;
         }
     }
+	
+	bool rotating = false; // Is the tile currently rotating?
+	Color normColor = Color.white;
+	GameObject terrainFactory;
+	
+	// The column and row values for this tile.
+	int xVal;
+	int zVal;
 }

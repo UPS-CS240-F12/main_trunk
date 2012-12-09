@@ -3,15 +3,12 @@ using System.Collections;
 
 public class ButtonPush : MonoBehaviour 
 {
-	
 	bool click;
 	
 	// Use this for initialization
 	void Start () 
 	{
 		click = false;
-		float newColor = 0.0f;
-        
 	}
 	
 	void OnMouseDown()

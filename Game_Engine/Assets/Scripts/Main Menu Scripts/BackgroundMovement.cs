@@ -3,14 +3,12 @@ using System.Collections;
 
 public class BackgroundMovement : MonoBehaviour {
 	Vector3 offset;
-	Vector3 maxHeight;
 	int counter;
 	bool flag;
 	
 	void Start () 
 	{
 		flag = true;
-		maxHeight = new Vector3 (maxX, maxY, maxZ);
 		offset = new Vector3 (maxX/200.0f, 
 				maxY/200.0f, maxZ/200.0f);
 		counter = 200;

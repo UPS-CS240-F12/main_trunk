@@ -11,11 +11,10 @@ public class TerrainGenerator : MonoBehaviour {
 	void Start () 
 	{
 		universalNormColor = Color.white;
-		index = 0;
 		totalTiles = 0;
-		flipping = false;
 		m_tileClone = null;
 		emptyLocations = new List<Vector3>();
+		deletedTiles = new List<Vector3>();
 		occupiedLocations = new List<Vector2>();
 		StartCoroutine ("SetGameWorld");
 	}
@@ -163,10 +162,19 @@ public class TerrainGenerator : MonoBehaviour {
 			TileMessenger messenger = new TileMessenger();
 			gameTiles[xVal, zVal].SendMessage("SendLocation", messenger);
 			Vector3 addMe = messenger.message;
-			emptyLocations.Add(addMe);
+			deletedTiles.Add(addMe);
 			gameTiles[xVal, zVal].SendMessage("DeleteTile");
 			totalTiles--;
 		}
+	}
+	
+	/*
+	* Receives the tile location of a tile to remove from the networking list of deleted tiles.
+	*/
+	void RemoveFromList(TileMessenger messenger)
+	{
+		Vector3 addMe = messenger.message;
+		emptyLocations.Add(addMe);
 	}
 	
 	/*
@@ -204,7 +212,8 @@ public class TerrainGenerator : MonoBehaviour {
 	void RespawnTile()
 	{
 		Vector3 newLocation = emptyLocations[0];
-		emptyLocations.RemoveAt(0);
+		emptyLocations.RemoveAt(0); // Remove from the mobile phones list of deleted tiles.
+		deletedTiles.RemoveAt(0); // Remove from the local list of deleted tiles.
 		Vector3 tempLocation = newLocation;
 		tempLocation.Scale (new Vector3(xWidth, 1, zWidth));
 		GameObject tile = Instantiate(m_tileClone, tempLocation, transform.rotation) as GameObject;
@@ -236,7 +245,6 @@ public class TerrainGenerator : MonoBehaviour {
 	}
 	
 	int totalTiles;
-	int index; // Location in the gameTiles list for the searched tile.
 	float xWidth;
 	float zWidth;
 	
@@ -246,14 +254,11 @@ public class TerrainGenerator : MonoBehaviour {
 	int xOffset;
 	int zOffset;
 	
-	int respawnNum; // The minimum number of tiles possible.
-	int flipNum; // The number of tiles remaining at which point the game will start getting extremely hard.
-	bool flipping;
-	
 	Color universalNormColor;
 	
 	private GameObject[,] gameTiles;
-	private volatile List<Vector3> emptyLocations;
+	private volatile List<Vector3> emptyLocations; // Tiles that are deleted for the mobile phones (For network).
+	private volatile List<Vector3> deletedTiles; // Tiles that are falling, or in the process of falling (For game engine).
 	private volatile List<Vector2> occupiedLocations;
 	
 	GameObject m_tileClone;
