@@ -5,7 +5,8 @@ public class Bullet : Projectile
 {
     protected override void OnProjectileCollided(Collider obj)
     {
-        audio.Play();
+        if (audio != null)
+            audio.Play();
         obj.SendMessage("Damage", m_damage);
         foreach (GameObject tower in GameObject.FindGameObjectsWithTag("Towers"))
         {

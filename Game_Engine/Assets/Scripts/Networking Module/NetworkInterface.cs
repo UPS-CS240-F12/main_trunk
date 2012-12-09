@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System;
+using System.Text;
 
 public class NetworkInterface : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class NetworkInterface : MonoBehaviour
         {
             WWWForm form = new WWWForm();
             form.AddField(phoneID, score);
-            WWW post = new WWW(m_serverURL, form);
+            WWW post = new WWW(m_serverURL + "?phone=" + phoneID + "&score=" + score, form);
             yield return post;
             if (post.error == null)
             {
@@ -86,10 +87,45 @@ public class NetworkInterface : MonoBehaviour
         }
 	}
 
+    void ResetGameState(bool saveScores)
+    {
+        // Try 5 times
+        for (uint i = 0; i < 5; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("restartGame", true.ToString());
+            string serverString = m_serverURL + "?restartGame=true";
+            if (saveScores == true)
+            {
+                form.AddField("logScores", true.ToString());
+                serverString += "&logScores=true";
+            }
+
+            WWW post = new WWW(serverString, form);
+
+            if (post.error == null)
+            {
+                // No error
+                break;
+            }
+            else
+            {
+                Debug.LogWarning("Could not reset game state: " + post.error);
+            }
+        }
+    }
+
     void Start()
     {
+        ResetGameState(false);
+
         //StartCoroutine("PollData");
-        StartCoroutine("SendData");
+        StartCoroutine(SendData());
+    }
+
+    void OnDestroy()
+    {
+        ResetGameState(true);
     }
 
     private IEnumerator PollData()
@@ -244,17 +280,33 @@ public class NetworkInterface : MonoBehaviour
             {
                 JSONObject jsonTemp = new JSONObject();
                 jsonTemp.type = JSONObject.Type.OBJECT;
-				TerrainGenerator terrainData = m_terrainFactory.GetComponent<TerrainGenerator>();
-				if (terrainData != null)
-				{
-	                jsonTemp.AddField("rows", terrainData.Rows);
-	                jsonTemp.AddField("columns", terrainData.Columns);
-	                JSONObject delTiles = new JSONObject();
-	                delTiles.type = JSONObject.Type.ARRAY;
-	                jsonTemp.AddField("deletedTiles", delTiles);
+                TerrainGenerator terrainData = m_terrainFactory.GetComponent<TerrainGenerator>();
+                if (terrainData != null)
+                {
+                    jsonTemp.AddField("rows", terrainData.Rows);
+                    jsonTemp.AddField("columns", terrainData.Columns);
+                    List<Vector3> delTilesList = terrainData.GetDeletedTiles();
+                    if (delTilesList != null)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("[");
+                        foreach (Vector3 tile in delTilesList)
+                        {
+                            builder.Append("[");
+                            builder.Append(tile.x + 4); // Goes from -4 to 3, add offset to go from 0 to 7
+                            builder.Append(",");
+                            builder.Append(tile.z + 4); // Same as above
+                            builder.Append("],");
+                        }
+                        if (builder.Length > 1)
+                            builder.Remove(builder.Length - 1, 1); // Remove last comma
+                        builder.Append("]");
+                        JSONObject delTiles = new JSONObject(builder.ToString());
+                        jsonTemp.AddField("deletedTiles", delTiles);
 
-                	engine.AddField("platforms", jsonTemp);
-				}
+                        engine.AddField("platforms", jsonTemp);
+                    }
+                }
             }
         }
 
@@ -516,9 +568,12 @@ public class NetworkInterface : MonoBehaviour
     [SerializeField]
     private GameObject m_fireballClone;
     [SerializeField]
+    private GameObject m_minionClone;
+
+    [SerializeField]
     private GameObject m_terrainFactory;
     [SerializeField]
-    private GameObject m_minionClone;
+    private GameObject m_pointKeeper;
 	
     private const string EngineString = "engine";
     private const string PhonesString = "phones";
@@ -532,5 +587,5 @@ public class NetworkInterface : MonoBehaviour
     private const string OwnerString = "ownerID";
     private const string RequestsString = "requests";
 
-    private bool m_enableDeletedTiles = false;
+    private bool m_enableDeletedTiles = true;
 }

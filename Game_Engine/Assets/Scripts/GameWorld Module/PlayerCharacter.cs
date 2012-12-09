@@ -36,8 +36,6 @@ public class PlayerCharacter : MonoBehaviour
 
         if (m_energyLossRate > 0)
             StartCoroutine("EnergyLossRoutine");
-
-        InputControls.Initialize();
 	}
 
     private IEnumerator EnergyLossRoutine()
@@ -54,17 +52,21 @@ public class PlayerCharacter : MonoBehaviour
     {
         //TODO: Move to FixedUpdate()
 		CharacterController controller = GetComponent<CharacterController>();
+        InputControls userControls = m_inputControls.GetComponent<InputControls>();
+        if (userControls == null)
+            return;
+
         // Rotate around y - axis
         /*
         InputControls.ClearRotation();
         */
-		
-        transform.Rotate(0, InputControls.Rotation() * m_rotateSpeed, 0);
-        Vector3 moveDirection = new Vector3(0, 0, InputControls.Movement());
+
+        transform.Rotate(0, userControls.Rotation() * m_rotateSpeed, 0);
+        Vector3 moveDirection = new Vector3(0, 0, userControls.Movement());
         moveDirection = transform.TransformDirection(moveDirection);
         moveDirection.Normalize();
 
-        if (InputControls.Roll())
+        if (userControls.Roll())
             moveDirection *= m_rollSpeed;
         else
 		{
@@ -80,7 +82,7 @@ public class PlayerCharacter : MonoBehaviour
         {
 			
 			energyMagnitude = 0;
-            if (InputControls.Jump())
+            if (userControls.Jump())
             {
 				m_movementSpeed = defaultSpeed;
                 m_fallSpeed = m_jumpSpeed;
@@ -102,7 +104,7 @@ public class PlayerCharacter : MonoBehaviour
             }
             */
         }
-        else if(InputControls.Jump() && firstJump && EnergyPoints > 0)
+        else if (userControls.Jump() && firstJump && EnergyPoints > 0)
 		{
 			//Perform Jetpack
 			moveDirection.y = moveDirection.y + m_jumpSpeed;
@@ -141,7 +143,7 @@ public class PlayerCharacter : MonoBehaviour
 		//update stored position
 		m_position = transform.position;
 
-        if (InputControls.Shield())
+        if (userControls.Shield())
         {
             if (m_shieldActive == false && EnergyPoints > m_shieldActivationCost)
             {
@@ -150,7 +152,7 @@ public class PlayerCharacter : MonoBehaviour
             }
         }
 
-        if (InputControls.Attack())
+        if (userControls.Attack())
         {
         }
 	}
@@ -366,4 +368,7 @@ public class PlayerCharacter : MonoBehaviour
 
 	[SerializeField]
 	private GameObject m_pointKeeper;
+
+    [SerializeField]
+    private GameObject m_inputControls;
 }

@@ -99,7 +99,7 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 	}
 	
-	List<Vector3> GetDeletedTiles()
+	public List<Vector3> GetDeletedTiles()
 	{
 		return emptyLocations;
 	}

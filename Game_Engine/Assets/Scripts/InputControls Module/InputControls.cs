@@ -1,53 +1,68 @@
 using UnityEngine;
 using System.Collections;
-using Controller_Core.Client;
 using System.Diagnostics;
 
-public class InputControls
+public class InputControls : MonoBehaviour
 {
-    public static float Rotation()
+    public float Rotation()
     {
-        return Input.GetAxis("Horizontal") + (kinectController.TurningLeft ? -1.0f : 0.0f) + (kinectController.TurningRight ? 1.0f : 0.0f);
+        return Input.GetAxis("Horizontal") + (GetComponent<ViCharController>().TurningLeft ? -1.0f : 0.0f) + (GetComponent<ViCharController>().TurningRight ? 1.0f : 0.0f);
     }
 
-    public static float Movement()
+    public float Movement()
     {
-        return Input.GetAxis("Vertical") + (kinectController.Moving ? 1.0f : 0.0f);
+        return Input.GetAxis("Vertical") + (GetComponent<ViCharController>().Moving ? 1.0f : 0.0f);
     }
 
-    public static bool Jump()
+    public bool Jump()
     {
-        return Input.GetButton("Jump") || kinectController.Jumping;
+        return Input.GetButton("Jump") || GetComponent<ViCharController>().Jumping;
     }
 
-    public static bool Attack()
+    public bool Attack()
     {
-        return false;
+        return GetComponent<ViCharController>().Attacking;
     }
 
-    public static bool Roll()
+    public bool Roll()
     {
         return Input.GetButton("Roll");
     }
 
-    public static bool Shield()
+    public bool Shield()
     {
-        return false;
+        return GetComponent<ViCharController>().Shielding;
     }
 
-    public static void Initialize()
+    void Start()
     {
-        if (kinectController == null)
-        {
-            // TODO: Spawn process for Kinect; wait for it to become responsive
-            //Process p = Process.Start(ViCharKinectProcessName);
-            //while (p.Responding == false)
-            //    yield return new WaitForSeconds(0.010f);
-            kinectController = new ViCharController();
-        }
+        ViCharKinectProcessName = Application.dataPath + "/../Kinect/ViCharController.exe";
+
+        // Start the process as hidden
+        ProcessStartInfo info = new ProcessStartInfo(ViCharKinectProcessName);
+        info.WorkingDirectory = ViCharKinectProcessName;
+        info.WindowStyle = ProcessWindowStyle.Minimized;
+
+        kinectProcess = Process.Start(info);
+
+        kinectController = GetComponent<ViCharController>();
+        UnityEngine.Debug.Log("Started kinect process!");
     }
 
-    public static ViCharController kinectController = null;
+    void OnDestroy()
+    {
+        //kinectController = null;
 
-    private static string ViCharKinectProcessName = "foo.exe";
+        if (kinectProcess.HasExited == true)
+            return;
+        else if (kinectProcess.Responding == false)
+            kinectProcess.Kill();
+        else
+            kinectProcess.Close();
+    }
+
+    private Process kinectProcess;
+    private ViCharController kinectController;
+
+    private static string ViCharKinectProcessName;
 }

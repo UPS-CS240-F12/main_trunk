@@ -51,6 +51,11 @@ public class PointKeeper : MonoBehaviour {
 		DontDestroyOnLoad(preserveScore);
 		Application.LoadLevel("GameOverScene");
 	}
+
+    public int Score
+    {
+        get { return points; }
+    }
 	
 	IEnumerator AddPoints(int newPoints)
 	{
