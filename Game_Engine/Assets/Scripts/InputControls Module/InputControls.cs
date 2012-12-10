@@ -6,7 +6,7 @@ public class InputControls : MonoBehaviour
 {
     public float Rotation()
     {
-        return Input.GetAxis("Horizontal") + (kinectController.TurningLeft ? -1.0f : 0.0f) + (GetComponent<ViCharController>().TurningRight ? 1.0f : 0.0f);
+        return Input.GetAxis("Horizontal") + (kinectController.TurningLeft ? -1.0f : 0.0f) + (kinectController.TurningRight ? 1.0f : 0.0f);
     }
 
     public float Movement()

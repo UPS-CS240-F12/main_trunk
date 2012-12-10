@@ -17,7 +17,6 @@ public class RandomObjectFactory : MonoBehaviour
     private IEnumerator CreateRandomObjects()
     {
         System.Random rand = new System.Random();
-        float x, z;
         int waitTime;
 
         while (m_continue == true)
@@ -27,9 +26,7 @@ public class RandomObjectFactory : MonoBehaviour
 
             //x = m_boundaries.x + ((float)rand.NextDouble() * m_boundaries.width);
             //z = m_boundaries.y + ((float)rand.NextDouble() * m_boundaries.height);
-			TileMessenger messenger = new TileMessenger();
-			terrainFactory.SendMessage("GetRandomTile", messenger);
-			Instantiate(m_objectClone, messenger.message + new Vector3(0,45,0), Quaternion.identity);
+            CreateObject();
             //Instantiate(m_objectClone, new Vector3(x, m_yOffset, z), Quaternion.identity);
         }
 
@@ -37,6 +34,13 @@ public class RandomObjectFactory : MonoBehaviour
         {
             m_running = false;
         }
+    }
+
+    public void CreateObject()
+    {
+        TileMessenger messenger = new TileMessenger();
+        terrainFactory.SendMessage("GetRandomTile", messenger);
+        Instantiate(m_objectClone, messenger.message + new Vector3(0, 45, 0), Quaternion.identity);
     }
 
     // Update is called once per frame

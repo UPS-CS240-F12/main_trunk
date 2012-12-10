@@ -5,6 +5,8 @@ public class CarePackage : Powerup
 {
     protected override void Start()
 	{
+        m_id = s_idTracker;
+        s_idTracker++;
 		base.Start();
 		m_pointKeeper = (GameObject) GameObject.FindGameObjectWithTag("PointKeeper");
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
@@ -22,6 +24,16 @@ public class CarePackage : Powerup
 		}
     }
 
+    void OnDestroy()
+    {
+        NetworkInterface.ClearCarePackage(m_id.ToString());
+    }
+
+    public int ID
+    {
+        get { return m_id; }
+    }
+
     [SerializeField]
     private int m_energyGain;
 	
@@ -34,4 +46,8 @@ public class CarePackage : Powerup
 	private int m_respawnNumber;
 	[SerializeField]
 	string m_displayMessage;
+
+    private int m_id;
+
+    private static int s_idTracker = 0;
 }

@@ -7,7 +7,13 @@ using System.Text;
 
 public class NetworkInterface : MonoBehaviour
 {
-    public static IEnumerator AddPhoneScore(string phoneID, int score)
+    public static void AddPhoneScore(string phoneID, int score)
+    {
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.AddPhoneScoreWorker(phoneID, score));
+    }
+
+    private IEnumerator AddPhoneScoreWorker(string phoneID, int score)
     {
         // Try 5 times
         for (uint i = 0; i < 5; ++i)
@@ -25,67 +31,92 @@ public class NetworkInterface : MonoBehaviour
     }
 
     public static void ClearBattery(string batteryId)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"batteries\":{\"" + batteryId + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"batteries\":{\"" + batteryId + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
+
+    public static void ClearCarePackage(string id)
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"carePackages\":{\"" + id + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearBullet(string id)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"turretBullets\":{\"" + id + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"turretBullets\":{\"" + id + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearEyeball(string eyeballId)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"eyeballs\":{\"" + eyeballId + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"eyeballs\":{\"" + eyeballId + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearFireball(string fireballId)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"fireballs\":{\"" + fireballId + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"fireballs\":{\"" + fireballId + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearMinion(string minionId)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"minions\":{\"" + minionId + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"minions\":{\"" + minionId + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearTurret(string id)
-	{
-		JSONObject obj = new JSONObject("{\"engine\":{\"turrets\":{\"" + id + "\":null}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"engine\":{\"turrets\":{\"" + id + "\":null}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearPhoneFireballRequest(string id, string fireballID)
-	{
-		JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"fireballs\":{\"" + fireballID + "\":null}}}}}");
-        SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"fireballs\":{\"" + fireballID + "\":null}}}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
     public static void ClearPhoneMinionRequest(string id, string minionID)
-	{
-		JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"minions\":{\"" + minionID + "\":null}}}}}");
-		SendSimpleUpdate(obj);
-	}
+    {
+        JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":{\"requests\":{\"minions\":{\"" + minionID + "\":null}}}}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
 
-    private static IEnumerator SendSimpleUpdate(JSONObject obj)
-	{
-		//Debug.Log ("Sending Update: " + obj.ToString());
-		for (uint i = 0; i < 5; ++i)
+    public static void ClearPhone(string id)
+    {
+        JSONObject obj = new JSONObject("{\"phones\":{\"" + id + "\":null}}");
+        if (s_instance != null)
+            s_instance.StartCoroutine(s_instance.SendSimpleUpdate(obj));
+    }
+
+    private IEnumerator SendSimpleUpdate(JSONObject obj)
+    {
+        //Debug.Log ("Sending Update: " + obj.ToString());
+        for (uint i = 0; i < 5; ++i)
         {
             WWW post = new WWW(m_serverURL, System.Text.Encoding.UTF8.GetBytes(obj.ToString()));
             yield return post;
             if (post.error == null)
             {
                 // No error
+                //Debug.Log (post.text);
                 break;
             }
+            else
+                Debug.LogWarning(post.error);
         }
-	}
+    }
 
     void ResetGameState(bool saveScores)
     {
@@ -117,6 +148,8 @@ public class NetworkInterface : MonoBehaviour
 
     void Start()
     {
+        s_instance = this;
+
         ResetGameState(false);
 
         //StartCoroutine("PollData");
@@ -136,11 +169,11 @@ public class NetworkInterface : MonoBehaviour
             startTime = Time.realtimeSinceStartup;
             WWW get = new WWW(m_serverURL);
             yield return get;
-			if (get.error == null)
-			{
-	            //Debug.Log(get.text);
+            if (get.error == null)
+            {
+                //Debug.Log(get.text);
                 ParseJSON(new JSONObject(get.text));
-			}
+            }
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
         }
     }
@@ -158,7 +191,7 @@ public class NetworkInterface : MonoBehaviour
             yield return post;
             if (post.error == null)
             {
-				//Debug.Log(post.text);
+                //Debug.Log(post.text);
                 ParseJSON(new JSONObject(post.text));
             }
             yield return new WaitForSeconds(Mathf.Clamp((1.0f / m_pollRate) - (Time.realtimeSinceStartup - startTime), 0, 1));
@@ -181,6 +214,12 @@ public class NetworkInterface : MonoBehaviour
                 jsonTemp.AddField("energy", playerScript.EnergyPoints);
                 jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(player.transform.position));
                 jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(player.transform.rotation.eulerAngles));
+                jsonTemp.AddField("screenname", ScreenName.name);
+                PointKeeper pk = m_pointKeeper.GetComponent<PointKeeper>();
+                if (pk != null)
+                {
+                    jsonTemp.AddField("score", pk.Score);
+                }
                 engine.AddField("player", jsonTemp);
             }
         }
@@ -192,9 +231,24 @@ public class NetworkInterface : MonoBehaviour
             JSONObject jsonTemp = new JSONObject();
             jsonTemp.type = JSONObject.Type.OBJECT;
             jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
-            batteryGroup.AddField(obj.GetInstanceID().ToString(), jsonTemp);
+            Battery b = obj.GetComponent<Battery>();
+            if (b != null)
+                batteryGroup.AddField(b.ID.ToString(), jsonTemp);
         }
         engine.AddField("batteries", batteryGroup);
+
+        JSONObject carePackageGroup = new JSONObject();
+        carePackageGroup.type = JSONObject.Type.OBJECT;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("CarePackages"))
+        {
+            JSONObject jsonTemp = new JSONObject();
+            jsonTemp.type = JSONObject.Type.OBJECT;
+            jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
+            CarePackage c = obj.GetComponent<CarePackage>();
+            if (c != null)
+                batteryGroup.AddField(c.ID.ToString(), jsonTemp);
+        }
+        engine.AddField("carePackages", batteryGroup);
 
         JSONObject bulletGroup = new JSONObject();
         bulletGroup.type = JSONObject.Type.OBJECT;
@@ -204,7 +258,9 @@ public class NetworkInterface : MonoBehaviour
             jsonTemp.type = JSONObject.Type.OBJECT;
             jsonTemp.AddField(PositionString, JSONUtils.XYZTripletToJSON(obj.transform.position));
             jsonTemp.AddField(RotationString, JSONUtils.XYZTripletToJSON(obj.transform.rotation.eulerAngles));
-            bulletGroup.AddField(obj.GetInstanceID().ToString(), jsonTemp);
+            Bullet b = obj.GetComponent<Bullet>();
+            if (b != null)
+                bulletGroup.AddField(b.ID.ToString(), jsonTemp);
         }
         engine.AddField("turretBullets", bulletGroup);
 
@@ -329,9 +385,9 @@ public class NetworkInterface : MonoBehaviour
 
         GameObject[] turrets = GameObject.FindGameObjectsWithTag("Towers");
         bool[] existingTurrets = new bool[turrets.Length]; // Initializes as false
-		
-		GameObject[] eyeballs = GameObject.FindGameObjectsWithTag("Eyeballs");
-		bool[] existingPhones = new bool[eyeballs.Length];
+
+        GameObject[] eyeballs = GameObject.FindGameObjectsWithTag("Eyeballs");
+        bool[] existingPhones = new bool[eyeballs.Length];
 
         for (int i = 0; i < phonesTag.keys.Count; ++i)
         {
@@ -340,69 +396,84 @@ public class NetworkInterface : MonoBehaviour
                 continue;
 
             string phoneID = phonesTag.keys[i].ToString();
-			
-			for (int j = 0; j < eyeballs.Length; ++j)
-			{
-				MobileCamera eyeScript = eyeballs[j].GetComponent<MobileCamera>();
-				if (eyeScript != null)
-				{
-					if (eyeScript.DeviceID == phoneID)
-					{
-						existingPhones[j] = true;
-						break;
-					}
-				}
-			}
+
+            for (int j = 0; j < eyeballs.Length; ++j)
+            {
+                MobileCamera eyeScript = eyeballs[j].GetComponent<MobileCamera>();
+                if (eyeScript != null)
+                {
+                    if (eyeScript.DeviceID == phoneID)
+                    {
+                        existingPhones[j] = true;
+                        break;
+                    }
+                }
+            }
 
             KeyValuePair<bool, Vector3> position = JSONUtils.ParseXYZTriplet(phone[PositionString]);
             KeyValuePair<bool, Vector3> rotation = JSONUtils.ParseXYZTriplet(phone[RotationString]);
 
+            JSONObject updatedTime = phone["lastTimeElapsed"];
+            if (updatedTime != null)
+            {
+                double time = updatedTime.n;
+                if (time < (Time.realtimeSinceStartup - 7) * 1000)
+                {
+                    ClearPhone(phoneID);
+                    continue;
+                }
+            }
+
             if (position.Key == true && rotation.Key == true)
             {
-                GameObject eyeObj = UpdateObject("eyeball" + phoneID, position.Value, Quaternion.Euler(rotation.Value), m_eyeballClone);				
-				MobileCamera eyeScript = eyeObj.GetComponent<MobileCamera>();
+                GameObject eyeObj = UpdateObject("eyeball" + phoneID, position.Value, Quaternion.LookRotation(rotation.Value), m_eyeballClone);
+                MobileCamera eyeScript = eyeObj.GetComponent<MobileCamera>();
                 if (eyeScript != null)
                     eyeScript.DeviceID = phoneID;
+
+                Debug.Log(rotation.Value);
             }
 
             JSONObject requests = phone[RequestsString];
             if (requests != null)
-            {	
+            {
                 {
-					JSONObject nextRequest = requests["fireballs"];
+                    JSONObject nextRequest = requests["fireballs"];
                     // If request is fireball creation
                     if (nextRequest != null)
                     {
                         foreach (string nextID in nextRequest.keys)
                         {
-							JSONObject nextFireball = nextRequest[nextID];
+                            JSONObject nextFireball = nextRequest[nextID];
                             position = JSONUtils.ParseXYZTriplet(nextFireball[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextFireball[RotationString]);
 
                             if (position.Key == true && rotation.Key == true)
                             {
-                                GameObject fireballObj = UpdateObject("fireball" + nextID, position.Value, Quaternion.Euler(rotation.Value), m_fireballClone);
+                                GameObject fireballObj = UpdateObject("fireball" + nextID, position.Value, Quaternion.identity, m_fireballClone);
                                 Fireball fireballScript = fireballObj.GetComponent<Fireball>();
                                 if (fireballScript != null)
                                 {
                                     fireballScript.ID = nextID;
                                     fireballScript.PhoneSpawnerID = phoneID;
+                                    fireballScript.Direction = rotation.Value;
+                                    Debug.Log("Received fireball request: " + position.Value.ToString() + ", " + rotation.Key.ToString());
                                 }
                             }
-							
-							ClearPhoneFireballRequest(phoneID, nextID);
+
+                            ClearPhoneFireballRequest(phoneID, nextID);
                         }
                     }
-				}
-                    // If request is minion creation
+                }
+                // If request is minion creation
                 {
-					JSONObject nextRequest = requests["minions"];
-					if (nextRequest != null)
+                    JSONObject nextRequest = requests["minions"];
+                    if (nextRequest != null)
                     {
                         foreach (string nextID in nextRequest.keys)
                         {
-							JSONObject nextMinion = nextRequest[nextID];
-							
+                            JSONObject nextMinion = nextRequest[nextID];
+
                             position = JSONUtils.ParseXYZTriplet(nextMinion[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextMinion[RotationString]);
 
@@ -411,29 +482,29 @@ public class NetworkInterface : MonoBehaviour
                                 GameObject minionObj = UpdateObject("minion" + nextID, position.Value, Quaternion.Euler(rotation.Value), m_minionClone);
                                 MinionObject minionScript = minionObj.GetComponent<MinionObject>();
                                 if (minionScript != null)
-								{
+                                {
                                     minionScript.ID = nextID;
-									minionScript.PhoneOwner = phoneID;
-								}
+                                    minionScript.PhoneOwner = phoneID;
+                                }
                             }
-								
-							ClearPhoneMinionRequest(phoneID, nextID);
+
+                            ClearPhoneMinionRequest(phoneID, nextID);
                         }
                     }
-				}
-                    // Else if request is turret creation
+                }
+                // Else if request is turret creation
                 {
-					JSONObject nextRequest = requests["objectPlacement"];
-					if (nextRequest != null)
+                    JSONObject nextRequest = requests["objectPlacement"];
+                    if (nextRequest != null)
                     {
                         string type;
                         foreach (string nextID in nextRequest.keys)
                         {
-							JSONObject nextObj = nextRequest[nextID];
+                            JSONObject nextObj = nextRequest[nextID];
                             position = JSONUtils.ParseXYZTriplet(nextObj[PositionString]);
                             rotation = JSONUtils.ParseXYZTriplet(nextObj[RotationString]);
                             type = nextObj["type"].str;
-							
+
                             string jsonID = nextID;
                             if (jsonID == null)
                                 continue;
@@ -444,23 +515,23 @@ public class NetworkInterface : MonoBehaviour
                             {
                                 switch (type)
                                 {
-                                case "turret":
-                                    string turretName = "turret" + jsonID;
-                                    string owner = GetOwner(turretName, turrets);
-                                    if (owner == null || owner == phoneID || phonesTag.keys.Contains(owner) == false)
-                                    {
-                                        existingTurrets[i] = true;
-                                        GameObject turret = UpdateObject(turretName, position.Value, Quaternion.Euler(rotation.Value), m_turretClone);
-                                        TowerObject turretScript = turret.GetComponent<TowerObject>();
-                                        if (turretScript != null)
+                                    case "turret":
+                                        string turretName = "turret" + jsonID;
+                                        string owner = GetOwner(turretName, turrets);
+                                        if (owner == null || owner == phoneID || phonesTag.keys.Contains(owner) == false)
                                         {
-                                            turretScript.OwnerID = phoneID;
-                                            turretScript.ID = jsonID;
+                                            existingTurrets[i] = true;
+                                            GameObject turret = UpdateObject(turretName, position.Value, Quaternion.Euler(rotation.Value), m_turretClone);
+                                            TowerObject turretScript = turret.GetComponent<TowerObject>();
+                                            if (turretScript != null)
+                                            {
+                                                turretScript.OwnerID = phoneID;
+                                                turretScript.ID = jsonID;
+                                            }
                                         }
-                                    }
-                                    break;
-                                default:
-                                    break;
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }
@@ -468,29 +539,29 @@ public class NetworkInterface : MonoBehaviour
                 }
             }
         }
-		
-		for (int i = 0; i < existingPhones.Length; ++i)
-		{
-			if (existingPhones[i] == false)
-			{
-				MobileCamera script = eyeballs[i].GetComponent<MobileCamera>();
-				if (script != null)
-					ClearEyeball(script.DeviceID);
-				
-				Destroy(eyeballs[i]);
-			}
-		}
+
+        for (int i = 0; i < existingPhones.Length; ++i)
+        {
+            if (existingPhones[i] == false)
+            {
+                MobileCamera script = eyeballs[i].GetComponent<MobileCamera>();
+                if (script != null)
+                    ClearEyeball(script.DeviceID);
+
+                Destroy(eyeballs[i]);
+            }
+        }
 
         for (int i = 0; i < existingTurrets.Length; ++i)
         {
             if (existingTurrets[i] == false)
             {
-				TowerObject script = turrets[i].GetComponent<TowerObject>();
-				if (script != null)
-				{
-					ClearTurret(script.ID);
-				}
-				
+                TowerObject script = turrets[i].GetComponent<TowerObject>();
+                if (script != null)
+                {
+                    ClearTurret(script.ID);
+                }
+
                 Destroy(turrets[i]);
             }
         }
@@ -508,11 +579,20 @@ public class NetworkInterface : MonoBehaviour
                     switch (effect)
                     {
                         case "none":
+                            Projectile.EyeballDamageBuff = false;
+                            if (m_robotBuff == true)
+                                m_robotBuff = false;
                             break;
-						case "robotBuff":
-							break;
-						case "eyeballBuff":
-							break;
+                        case "robotBuff":
+                            if (m_robotBuff == false)
+                            {
+                                m_carePackageFactory.SendMessage("CreateObject");
+                                m_robotBuff = true;
+                            }
+                            break;
+                        case "eyeballBuff":
+                            Projectile.EyeballDamageBuff = true;
+                            break;
                         default:
                             break;
                     }
@@ -574,7 +654,9 @@ public class NetworkInterface : MonoBehaviour
     private GameObject m_terrainFactory;
     [SerializeField]
     private GameObject m_pointKeeper;
-	
+    [SerializeField]
+    private GameObject m_carePackageFactory;
+
     private const string EngineString = "engine";
     private const string PhonesString = "phones";
     private const string TurretString = "turret";
@@ -588,4 +670,8 @@ public class NetworkInterface : MonoBehaviour
     private const string RequestsString = "requests";
 
     private bool m_enableDeletedTiles = true;
+
+    private bool m_robotBuff = false;
+
+    private static NetworkInterface s_instance;
 }

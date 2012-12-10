@@ -213,6 +213,9 @@ public class TerrainGenerator : MonoBehaviour {
 	 */
 	void RespawnTile()
 	{
+        if (emptyLocations.Count == 0)
+            return; // It's full; no tiles to respawn!
+
 		Vector3 newLocation = emptyLocations[0];
 		emptyLocations.RemoveAt(0); // Remove from the mobile phones list of deleted tiles.
 		deletedTiles.RemoveAt(0); // Remove from the local list of deleted tiles.

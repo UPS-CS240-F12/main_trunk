@@ -7,16 +7,16 @@ public class Fireball : Projectile
     {
         if (audio != null)
             audio.Play();
-        obj.SendMessage("Damage", m_damage);
+        obj.SendMessage("Damage", m_damage * (EyeballDamageBuff == true ? 2 : 1));
         if (m_phone != null)
-            NetworkInterface.AddPhoneScore(m_phone, m_damage);
+            NetworkInterface.AddPhoneScore(m_phone, m_damage * (EyeballDamageBuff == true ? 2 : 1));
     }
-	
-	void OnDestroy()
-	{
+
+    void OnDestroy()
+    {
         if (m_ID != null)
-			NetworkInterface.ClearFireball(m_ID);
-	}
+            NetworkInterface.ClearFireball(m_ID);
+    }
 
     public int Damage
     {

@@ -7,12 +7,12 @@ public class MinionObject : MonoBehaviour {
     // Use this for initialization
     void Start () {
         frozen = false;
-        isChasing = true;
+        //isChasing = true;
         spinRate = 400.0f;
-        speed = 1;
+        //speed = 1;
         maxRange = 4000.0f;
         minRange = 200.0f;
-        maxHitPoints = hitPoints = 20000.0f;
+        maxHitPoints = hitPoints = 2;
         player = GameObject.FindWithTag("Player");
         StartCoroutine("unfreezeTimer");
 
@@ -44,7 +44,6 @@ public class MinionObject : MonoBehaviour {
         Vector3 update = Vector3.Lerp(transform.position, target, Time.deltaTime);
         Vector3 movement = update - transform.position;
         controller.Move(movement);
-        Debug.Log(transform.position);
         
 
         
@@ -128,10 +127,10 @@ public class MinionObject : MonoBehaviour {
 	[SerializeField]
 	private string m_owner = null;
 
-    private bool isChasing;
+    //private bool isChasing;
     private float maxRange;
     private float minRange;
-    private float speed;
+    //private float speed;
     private float hitPoints;
     private float maxHitPoints;
     private bool frozen;
