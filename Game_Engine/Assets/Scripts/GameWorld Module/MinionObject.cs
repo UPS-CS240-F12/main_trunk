@@ -6,32 +6,53 @@ public class MinionObject : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        frozen = false;
         isChasing = true;
+        spinRate = 400.0f;
         speed = 1;
         maxRange = 4000.0f;
         minRange = 200.0f;
+        maxHitPoints = hitPoints = 20000.0f;
         player = GameObject.FindWithTag("Player");
+        StartCoroutine("unfreezeTimer");
+
     }
     
     // Update is called once per frame
     void Update () {
         Vector3 playerLocation = player.transform.position;
-        aimAt(playerLocation);
-        if(inRange(playerLocation)){
-            runAt(playerLocation);
+        if (!frozen){
+            aimAt(playerLocation);
+            if(inRange(playerLocation)){
+                runAt(playerLocation);
+            }
+            if(touchingPlayer(playerLocation)){
+                attackPlayer();
+            }
         }
-        if(touchingPlayer(playerLocation)){
-            attackPlayer();
+        else{
+            doSpinAnimation();
         }
     }
 
+    void doSpinAnimation(){
+        transform.Rotate(Vector3.right,spinRate*Time.deltaTime,0);
+    }
+
     void runAt(Vector3 target){
-        transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime);
+        CharacterController controller = GetComponent<CharacterController>();
+        Vector3 update = Vector3.Lerp(transform.position, target, Time.deltaTime);
+        Vector3 movement = update - transform.position;
+        controller.Move(movement);
+        Debug.Log(transform.position);
+        
+
+        
     }
 
     void aimAt(Vector3 target){
         Quaternion rotateTo = Quaternion.LookRotation(target - transform.position);
-        Quaternion slerp = Quaternion.Slerp(transform.rotation, rotateTo, Time.deltaTime);
+        Quaternion slerp = Quaternion.Slerp(transform.rotation, rotateTo, Time.deltaTime * spinRate);
 
         transform.rotation = slerp;
     }
@@ -47,6 +68,15 @@ public class MinionObject : MonoBehaviour {
             return true;
         }
         return false;
+    }   
+
+    private IEnumerator unfreezeTimer()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(10.0f);
+                frozen = false;
+        }
     }
 
     bool inRange(Vector3 target){
@@ -57,7 +87,17 @@ public class MinionObject : MonoBehaviour {
         }
         return false;
     }
+
+    public void takeDamage(float amount){
+        hitPoints -= amount;
+        //Debug.Log("Took damage of: "+amount);
+        if (hitPoints < 0){
+            frozen = true;
+            hitPoints = maxHitPoints;
+        }
+    }
 	
+
 	void OnDestroy()
 	{	
 		NetworkInterface.ClearMinion(m_id);
@@ -79,6 +119,7 @@ public class MinionObject : MonoBehaviour {
 		get { return m_id; }
 		set {m_id = value; }
 	}
+
     
     private GameObject player;
 	
@@ -91,9 +132,8 @@ public class MinionObject : MonoBehaviour {
     private float maxRange;
     private float minRange;
     private float speed;
-
-
-
-
-
+    private float hitPoints;
+    private float maxHitPoints;
+    private bool frozen;
+    private float spinRate;
 }

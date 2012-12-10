@@ -21,7 +21,7 @@ public class InputControls : MonoBehaviour
 
     public bool Attack()
     {
-        return kinectController.Attacking;
+        return Input.GetButton("Attack") || kinectController.Attacking;
     }
 
     public bool Roll()

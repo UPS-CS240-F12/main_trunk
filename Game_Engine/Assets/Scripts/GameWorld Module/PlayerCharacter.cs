@@ -30,11 +30,16 @@ public class PlayerCharacter : MonoBehaviour
 		energyMagnitude = 0.09f;
 		moveBonus = 1;
 		defaultSpeed = m_movementSpeed;
+        characterUp = transform.eulerAngles;//* Vector3.zero;
 		
 		terrainFactory = GameObject.FindGameObjectWithTag("TerrainFactory");
 
-        if (m_energyLossRate > 0)
+        if (m_energyLossRate > 0){
             StartCoroutine("EnergyLossRoutine");
+        }
+        //StartCoroutine("AttackAnimationTimer");
+        minions =  GameObject.FindGameObjectsWithTag("Minions");
+        minion = GameObject.FindGameObjectWithTag("Minions");
 	}
 
     private IEnumerator EnergyLossRoutine()
@@ -48,7 +53,19 @@ public class PlayerCharacter : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update()
-    {
+    {   
+        minions = GameObject.FindGameObjectsWithTag("Minions");
+        GameObject closestMinion = minions[0];
+        float closestMinionDistance = DistanceTo(closestMinion.transform.position);
+        foreach (GameObject aMinion in minions){
+            if (closestMinionDistance > DistanceTo(aMinion.transform.position)){
+                closestMinion = aMinion;
+                closestMinionDistance = DistanceTo(aMinion.transform.position);
+            }
+
+        }
+        minion = closestMinion;
+
         //TODO: Move to FixedUpdate()
 		CharacterController controller = GetComponent<CharacterController>();
         InputControls userControls = m_inputControls.GetComponent<InputControls>();
@@ -61,6 +78,8 @@ public class PlayerCharacter : MonoBehaviour
         */
 
         transform.Rotate(0, userControls.Rotation() * m_rotateSpeed, 0);
+        characterUp.Set(characterUp.x, transform.eulerAngles.y, characterUp.z);
+
         Vector3 moveDirection = new Vector3(0, 0, userControls.Movement());
         moveDirection = transform.TransformDirection(moveDirection);
         moveDirection.Normalize();
@@ -153,8 +172,43 @@ public class PlayerCharacter : MonoBehaviour
 
         if (userControls.Attack())
         {
+            AttackAnimation();
+            //Debug.Log("Minion is in range is "+InRange(minion.transform.position));
+            if (InRange(minion.transform.position)){
+                (minion.GetComponent<MinionObject>()).takeDamage(m_attackDamage);
+            }
+
+        }else{
+            transform.eulerAngles = characterUp;
         }
 	}
+
+//    private IEnumerator AttackAnimationTimer()
+//    {
+//        while (true)
+//        {
+//            yield return new WaitForSeconds(0.01f);
+//                transform.Rotate(characterUp,10 * attackAnimationSpeed * Time.deltaTime,0);
+//        }
+//    }
+
+
+
+    void AttackAnimation(){
+        transform.Rotate(Vector3.right,attackAnimationSpeed*Time.deltaTime,0);
+    }
+
+    bool InRange(Vector3 target){
+        //float distanceToTarget = (target - transform.position).magnitude;
+        if (DistanceTo(target) < m_range){
+            return true;
+        }
+        return false;
+    }
+
+    float DistanceTo(Vector3 target){
+        return (target - transform.position).magnitude;
+    }
 
     void LateUpdate()
     {
@@ -315,6 +369,10 @@ public class PlayerCharacter : MonoBehaviour
 	float energyMagnitude;
 	int moveBonus;
 	float defaultSpeed;
+
+    private Vector3 characterUp;
+    private GameObject[] minions;
+    private GameObject minion;
 	
     [SerializeField]
     private float m_movementSpeed;
@@ -347,6 +405,12 @@ public class PlayerCharacter : MonoBehaviour
     private int m_shieldActivationCost;
     [SerializeField]
     private bool m_energyAndShieldOnly = true;
+    [SerializeField]
+    private float m_attackDamage = 1.0f;
+    [SerializeField]
+    private float m_range = 250.0f;
+    [SerializeField]
+    private float attackAnimationSpeed;
 
     [SerializeField]
     private Vector3 m_position;
