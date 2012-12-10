@@ -3,15 +3,12 @@ using System.Collections;
 
 public class ButtonPush : MonoBehaviour 
 {
-	
 	bool click;
 	
 	// Use this for initialization
 	void Start () 
 	{
 		click = false;
-		float newColor = 0.0f;
-        
 	}
 	
 	void OnMouseDown()
@@ -36,8 +33,6 @@ public class ButtonPush : MonoBehaviour
 		}
 		else if(level == "Credits" && click)
 		{
-			//Holder for moving to credits not loading game
-
 			m_camera.SendMessage("RotateLeft");
 			m_light.SendMessage("RotateLeft");
 			click = false;

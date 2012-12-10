@@ -2,13 +2,11 @@ using UnityEngine;
 using System.Collections; 
 
 public class MainMenuButton : MonoBehaviour { 
-	Vector3 defaultLocation;
 	Vector3 offsetPosition;
 	Vector3 offsetStep;
 	
 	void Start()
 	{
-		defaultLocation = transform.position;
 		offsetStep = new Vector3(offsetX/10, offsetY/10, offsetZ/10);
 	}
 	

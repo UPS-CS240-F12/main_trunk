@@ -21,7 +21,6 @@ public class LoadProgress : MonoBehaviour {
 	
 	IEnumerator Progress()
 	{
-		int interval = 0;
 		while(progressIndex < 64)
 		{
 			

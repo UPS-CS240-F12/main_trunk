@@ -3,11 +3,9 @@ using System.Collections;
 
 public class ButtonHover : MonoBehaviour { 
 	bool hovering;
-	Vector3 defaultLocation;
 	Vector3 offsetPosition;
 	Vector3 offsetStep;
 	float displacement;
-	CharacterController controller;
 	ButtonPush pushMe;
 	
 	void Start()
@@ -20,9 +18,7 @@ public class ButtonHover : MonoBehaviour {
 		{
 			hovering = false;
 		}
-		defaultLocation = transform.position;
 		offsetStep = new Vector3(offsetX/10, offsetY/10, offsetZ/10);
-		controller = GetComponent<CharacterController>();
 		pushMe = GetComponent<ButtonPush>();
 	}
 	
