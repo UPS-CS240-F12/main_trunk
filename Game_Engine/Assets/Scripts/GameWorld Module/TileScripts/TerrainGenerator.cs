@@ -96,8 +96,10 @@ public class TerrainGenerator : MonoBehaviour {
 			for (int z = -zTiles/2; z < zTiles/2; z++)
 			{   
 				GameObject tile = Instantiate(m_tileClone, new Vector3(xWidth*x,-10,zWidth*z), transform.rotation) as GameObject;
+				GameObject grid = Instantiate(m_grid, new Vector3(xWidth*x,-10,zWidth*z), transform.rotation) as GameObject;
 				// Scales the tile to be exactly the size needed for the gameworld.
 				tile.transform.localScale = new Vector3(xWidth, 30, zWidth);
+				grid.transform.localScale = new Vector3(xWidth - 20, 1, zWidth - 20);
 				// Alert the TileState script's method SetValues.
 				tile.SendMessage("SetValues", new Vector2(x,z));
 				tile.name = "tile x" + x + " z" + z;
@@ -269,6 +271,8 @@ public class TerrainGenerator : MonoBehaviour {
 	public GameObject m_tileTwo;
 	[SerializeField]
 	public GameObject m_tileExtreme;
+	[SerializeField]
+	public GameObject m_grid;
 	
 	[SerializeField]
 	int m_xSize;

@@ -26,7 +26,6 @@ public class TileState : MonoBehaviour {
 	*/
 	public IEnumerator RotateSequence(bool circle, float magnitude)
 	{
-		rotating = true;
 		float xRotation;
 		float yRotation;
 		float zRotation;
@@ -48,7 +47,6 @@ public class TileState : MonoBehaviour {
 			transform.Rotate(xRotation,yRotation,zRotation);
 			yield return StartCoroutine(MyWaitFunction (0.05f));
 		}
-		rotating = false;
 		this.gameObject.renderer.material.color = normColor;
 	}
 	
@@ -144,8 +142,7 @@ public class TileState : MonoBehaviour {
             yield return null;
         }
     }
-	
-	bool rotating = false; // Is the tile currently rotating?
+
 	Color normColor = Color.white;
 	GameObject terrainFactory;
 	
